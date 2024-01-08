@@ -1,0 +1,1531 @@
+---
+title: "QuickRef_AdvQuant_W23"
+author: "Amy King-Henry"
+date created: 1/10/2022
+data last modified: 1/4/2024
+format: html
+editor: visual
+---
+
+# Introduction
+
+An annotated, searchable guide to commonly used functions in R - let's add to this as we think of more!
+
+## How to use this guide:
+
+1.  use Command + F or Ctrl + F to bring up the find search bar
+2.  Render the document to HTML and then search within THAT document
+3.  Scroll through the document outline (right) until you see what you're looking for
+
+# Keyboard Shortcuts
+
+## New Chunk
+
+-   Mac: Command + Alt + I
+
+-   PC: Ctrl + Alt + I
+
+## New pipe %\>% or \|\>
+
+-   Mac: Command + Shift + M
+
+-   PC: Ctrl + Shift + M
+
+# Installing and loading packages
+
+-   `install.packages()` buys the book from the bookstore.
+
+-   `library()` takes it off the shelf for you to use.
+
+```{r}
+# install.packages(tidyverse)
+library(tidyverse)
+# tools::package_dependencies("Matrix", which = "LinkingTo", reverse = TRUE)[[1L]]
+# install.packages("lme4", type = "source")
+```
+
+# Conditional statements
+
+For when you are doing a TEST of if something is true or not:
+
+|          |                                                 |
+|----------|-------------------------------------------------|
+| `>, <`   | greater than, less than                         |
+| `<=, >=` | greater than or equal to, less than or equal to |
+| `!=`     | does NOT equal                                  |
+| `==`     | exactly equals                                  |
+| `%in%`   | matches (out of more than one other value)      |
+
+Example use case:
+
+```{r}
+testvector <- c(1,5,6,4,10)
+
+4 %in% testvector
+# should return TRUE
+
+3 %in% testvector
+# should return FALSE
+```
+
+# Data Structure Definitions
+
+What structure is my data in?
+
+```{r}
+class(vector)
+class(iris)
+class(testmatrix)
+```
+
+## Vectors
+
+A vector is a one-dimensional object storing data, like a simple list of values.
+
+```{r}
+# can contain numbers
+vector <- c(1,2,3,4)
+
+# or words, or both
+vector <- c("Alladin", "Rajah", "Jasmine")
+
+# make a vector that repeats NA 20 times
+vector <- rep(NA, 20)
+```
+
+## Matrix
+
+A matrix is a two dimensional object for storing data with both row names and column names, and all the values are stored in the same format (e.g., numeric, character).
+
+```{r}
+vector <- c(1:9)
+testmatrix <- matrix(vector, nrow = 3, byrow = TRUE)
+
+# Select values from a matrix (or dataframe) using the straight brackets
+testmatrix[1,2] # value from row 1, column 2
+```
+
+## Data frames and tibbles:
+
+A data frame or a tibble is also two-dimensional, but it is **tidy** - it has the variable specifically on the columns and the observations on the rows.
+
+```{r}
+# cars is a dataframe, testmatrix is not. See how R displays them differently. 
+cars
+testmatrix
+
+# to force something to become a dataframe, use the data.frame() function
+testdf <- data.frame(testmatrix)
+testdf
+
+# a tibble is similar to a dataframe, but works better with tidyverse. 
+testtbl <- as_tibble(testmatrix)
+testtbl
+
+```
+
+## Lists
+
+Lists are objects that can store lots of other objects of the same or different type. These are useful when you have multiple data frames you want to keep together or iterate the same function over.
+
+```{r}
+allirises <- list(iris, iris3)
+allirises # now contains both
+
+allirises[1] # shows the first data in the list
+
+# fun fact: tibbles and dataframes are actually stored in the computer as lists... of columns
+```
+
+## Data types
+
+Tell what format your data is stored in with typeof() or a lot at a time with glimpse()
+
+```{r}
+glimpse(iris)
+typeof(cars$speed)
+
+typeof(iris$Species)
+
+typeof(vector)
+
+# these can give confusing answers - Google it!
+```
+
+# Diagnosing Data
+
+## Viewing an object
+
+### Print
+
+shows the data in the console
+
+```{r}
+iris
+print(iris)
+```
+
+### Kable
+
+from the knitr package makes nice looking tables that take up less space in your markdown and are easier to view.
+
+```{r}
+#install.packages("knitr")
+library(knitr)
+kable(head(iris))
+```
+
+### View()
+
+opens up a tab in RStudio to view your data in a spreadsheet. Will prevent Quarto from rendering (from tidyverse)
+
+```{r}
+View(iris)
+```
+
+### glimpse() tells you the data format for each column, the first few entries, and the number of rows and columns
+
+(from tidyverse)
+
+```{r}
+glimpse(iris)
+```
+
+## Describing and exploring an object
+
+```{r Example Data}
+vector <- c(25, "wordle", "franklin", 25, 52, "wordle", 25)
+matrix <- matrix(c(10,12,18,26), nrow= 2, byrow = FALSE)
+rownames(matrix) <- c("A", "a")
+colnames(matrix) <- c("B","b")
+matrix
+
+```
+
+## Dimensions and Summaries
+
+How big is my object? What are the columns? How can I view the data in a summarized way? What format is the data stored in?
+
+```{r}
+nrow(iris) # how many rows
+ncol(iris) # how many columns
+
+length(vector) # How long is my vector? How many observations are there in a column? 
+
+dim(iris) # how many rows and columns, what are the dimensions
+names(iris) # what are the column names of a data frame or tibble? 
+colnames(iris) # what are the column names of a matrix? 
+rownames(iris) # what are the row names of a matrix?
+
+str(iris) # dimensions, data type for each column, sample of values and column names
+glimpse(iris) # dimensions, data type for each column, sample of values and column names
+summary(iris) # basic summary statistics for each column
+attributes(iris) # column names, object class, row names
+
+```
+
+### Object Types
+
+```{r}
+# What kind of object do I have? Is it a matrix, a data frame, a list, and what format are the values?
+class(vector)
+typeof(vector)
+mode(vector)
+storage.mode(iris)
+```
+
+### Change object type
+
+From matrix to data frame
+
+```{r}
+iris_dataframe <- as.data.frame(iris)
+iris_dataframe
+```
+
+from matrix to tibble
+
+```{r}
+iris_tibble <- as_tibble(iris)
+iris_tibble
+```
+
+### Finding values within a data frame or vector
+
+What positions in my vector have the specified value, or meet a conditional statement?
+
+```{r}
+which(vector == 25)
+```
+
+### Unique
+
+How many different unique values are there in my vector or dataset?
+
+```{r}
+unique(vector)
+unique(iris$Species)
+```
+
+## Writing new functions
+
+How to write or define your own function to repeat an algorithm strategically
+
+```{r}
+# define the function
+
+myfancyfunction <- function(inputvariable){
+  # stuff to do to the input variable or data
+  inputvariable * 2
+}
+
+# Once defined, it runs like any other function
+myfancyfunction(10)
+```
+
+# Importing Data
+
+## From a .csv file, from Excel or other spreadsheet software
+
+```{r}
+#install.packages("readr")
+library(readr)
+CDM2 <- read_csv("CDM_data.csv")
+```
+
+## From RData files
+
+If someone has given you a .Rdata file, this is an R file type that contains multiple data objects so that you can easily import them and use them without having to rename all the objects. Check the "Environment" pane in the upper right - you'll see a whole bunch of new objects. Try viewing a few of them.
+
+```{r}
+load("S4E2e.RData")
+head(ps)
+```
+
+Check the "Environment" pane in the upper right - you'll see a whole bunch of new objects. Try viewing a few of them.
+
+## From an Excel workbook (single sheet)
+
+```{r}
+raw_data <- read_excel("RawData.xlsx", 
+             sheet = "Sheet 1", 
+             # col_names = FALSE # which you choose depends on if you have only one row of column names in your excel document
+             # col_names = TRUE
+             )
+```
+
+## From Excel, multiple sheets, multiple libraries
+
+### Find the path to a file
+
+```{r}
+file.choose()
+# this will give you a pop-up window - choose the file you want the path to, and R will return the path in the Console.
+```
+
+```{r}
+# library(fs)
+
+# define the path (using the path from the last chunk)
+path_to_file <- "/Users/amyhenry/Desktop/The Bowl Project Analysis/BowlSpecies_forEdits.xlsx"
+
+mad <- path_to_file %>%
+        excel_sheets() %>%
+        set_names() %>%
+       map(read_excel,
+           path = path_to_file)
+        
+str(mad)
+```
+
+## Import Multiple Sheets from Multiple Excel files using a defined function and map() to apply to multiple files
+
+```{r}
+path_to_file <- "/Users/amyhenry/Desktop/The Bowl Project Analysis/BowlSpecies_forEdits.xlsx"
+
+# define the new function to take the path and apply read_excel to the file at the end of the path
+read_multiple_excel <- function(path) {
+  path %>%
+    excel_sheets() %>% 
+    set_names() %>% 
+  map(read_excel, path = path, col_names = FALSE)
+}
+
+# use the map() function to apply the read_multiple_excel function to all the files in the directory/folder that have "xlsx" in their name
+data <- dir_ls(path = path_raw, regexp = "xlsx") %>% 
+           map(read_multiple_excel)
+
+# results in a list
+data
+```
+
+## From Google Sheets
+
+```{r}
+library(googlesheets4)
+
+ImportedData <- read_sheet(
+  # The URL, in QUOTES
+  "https://docs.google.com/spreadsheets/d/12V808zXNxFvWldpsfU3A8vo9ZNVbqFB7LQmTht_Pjbc/edit#gid=0", 
+  sheet = 1, # if you have multiple sheets, which one
+  col_names = FALSE, # Only make "TRUE" if your first row is the only header row. 
+  skip = NA, # number of rows that do not contain data to skip importing.
+  col_types = "c", # make NULL if you're okay with R guessing from the spreadsheet, but character if you'd rather define it later (recommended)
+  trim_ws = TRUE, # trims blank rows
+  )
+```
+
+# Data Cleaning
+
+## Changing column data format
+
+seach terms: type factor character numeric using mutate
+
+```{r}
+glimpse(iris) # default the data columns are double (aka numeric) and Species is a factor
+
+# to make it a character:
+iris %>% mutate(Species = as.character(Species))
+
+# to make it a factor: 
+glimpse(mpg) # manufacturer is a character, we want it as a factor
+mpg %>% mutate(manufacturer = as.factor(manufacturer))
+
+# Integers vs. Double 
+## both are numeric data types - only difference is how R stores them (integers are whole numbers and take up slightly less computer space)
+glimpse(mpg) 
+mpg %>% mutate(year = as.numeric(year)) # notice how it shifts to double
+```
+
+## Manipulating and combining multiple tables
+
+### bind_rows() and bind_cols()
+
+Combine data frames together that have matching dimensions/columns
+
+`bind_rows()` will put two data frames on top of each other if they have the same column names (they don't need to have them in the same order)
+
+```{r}
+nrow(iris)
+doubleiris <- bind_rows(iris,iris)
+nrow(doubleiris)
+```
+
+`bind_cols()` adds columns to a data frame if there are the same number of rows, without matching. this only works if your data is in the same order!
+
+```{r}
+iris1 <- iris %>% select(Sepal.Length, Sepal.Width)
+iris1
+iris2 <- iris %>% select(Petal.Length, Petal.Width)
+iris2
+
+bind_cols(iris2, iris1)
+```
+
+### Join functions
+
+Joins combine dataframes that have different numbers of rows and columns, but **at least one shared column** to match the observations by, side-by-side. Observations don't have to be in order. There are several kinds of join functions, well-explained simply at this website:
+
+https://statisticsglobe.com/r-dplyr-join-inner-left-right-full-semi-anti
+
+```{r}
+band_members
+band_instruments
+```
+
+```{r}
+#full_join keeps all rows from both dataframes, and fills in NA if there is no match. 
+full_join(band_members, band_instruments)
+```
+
+```{r}
+#left_join() only keeps all the rows in the first dataframe, and discards ones without matches from the second.
+left_join(band_members, band_instruments)
+```
+
+```{r}
+#  right_join() does the opposite. 
+right_join(band_members, band_instruments)
+```
+
+```{r}
+# inner_join() only keeps rows that have matches in both dataframes. 
+inner_join(band_members, band_instruments)
+
+```
+
+## Change column names
+
+#### Manually
+
+`rename()` function
+
+```{r}
+colnames(iris)
+# format
+dataframe %>% rename(NewName = OldName)
+iris %>% rename(SL = Sepal.Length, PL = Petal.Length)
+
+```
+
+#### Set Row 1 as column names
+
+```{r}
+#install.packages("janitor")
+iris |> 
+  janitor::row_to_names(1) # row number you want to be the new column names
+```
+
+## Missing Values
+
+Fill empty cells with the values immediately adjacent (e.g., quadrat information)
+
+```{r}
+example <- tibble(Site = c("Town", NA, NA, "Country", NA, "City", NA, NA, NA),
+                  Species = c("Pigeon", "Bat", "Penguin", "Pigeon", "Robin", "Pigeon", "Bat", "Penguin", "Robin"), 
+                  Abund = c(10, 12,13, 15, 18, 24, 36, 17, 40))
+example # in this dataframe, the enterer was lazy and did not copy the Site name down all the cells to which it applied. 
+
+example |> 
+  fill(Site)
+
+```
+
+## Make new columns
+
+## Transform existing columns
+
+The `mutate()` function
+
+```{r}
+# To make a new column
+#format
+dataframe %>% mutate(NewColumn = )
+
+# make a column with unique values for each row or the same numbers for each row
+iris %>% mutate(RowNumbers = 1:nrow(iris))
+
+iris %>% mutate(Constant = 27)
+
+iris %>% mutate()
+
+# Make a new column with a calculation from some other column(s)
+iris %>% mutate(Sepal.Ratio = Sepal.Length/Sepal.Width)
+
+# Make a new column that depends on the numeric values of a different column with case_when()
+iris %>% mutate(BigFlower = 
+                  case_when(
+                    # [For lines when this condition is true] ~ Have this value,
+                    Petal.Length > 1.4 ~ "Big",
+                    Petal.Length == 1.4 ~ "Not Big", # double equals means a test
+                    TRUE ~ as.character(Petal.Length) # This line is a "catchall" for any lines that don't fit a condition. if you don't use this line, those cells will default to NA. It basically says, just put Petal.Length there if you haven't got anything else. 
+                  )
+                )
+```
+
+### Date formatting
+
+functions for setting date columns are found in the `lubridate` package within Tidyverse.
+
+```{r}
+# UNDER CONSTRUCTION
+?mdy()
+?ymd()
+?hms()
+```
+
+## Choose specific COLUMNS using select()
+
+search terms: choose use select filter subset trim reduce delete columns
+
+```{r}
+glimpse(iris)
+
+# choose using column names
+iris %>% select(Sepal.Length, Sepal.Width, Species)
+
+# or column numbers
+iris %>% select(1:3, 5)
+
+# or both
+iris %>% select(1:2, Species)
+```
+
+## Filter for rows that meet a condition
+
+Choose select subset for only certain specific ROWS that meet a condition using `filter()`
+
+```{r}
+# filter for just one
+iris %>% filter(Species == "setosa")
+
+# rows can be either setosa OR versicolor
+# filter so that we keep BOTH setosa AND versicolor
+iris %>% filter(Species == "setosa" | Species == "versicolor") \
+
+# WRONG - no rows can be equal to setosa AND versicolor at the same time, so this returns zero rows. 
+iris %>% filter(Species == "setosa" & Species == "versicolor") 
+
+# rows must be both setosa AND greater than 1.3
+iris %>% filter(Species == "setosa" & Petal.Length > 1.3)
+iris %>% filter(Species == "setosa", Petal.Length > 1.3) # works the same as above
+
+```
+
+### Pivot rows to columns or vice versa
+
+Reshape or transform the dataframe so it has different dimensions, good explanation and graphics at this website:
+
+<https://fromthebottomoftheheap.net/2019/10/25/pivoting-tidily/>
+
+Move rows to columns or transform the dataset to make it wider or longer using `pivot_longer()` and `pivot_wider()`
+
+pivot_longer() makes fewer columns.
+
+```{r}
+pivot_longer(mydata, 
+  cols, # columns that should pivot from wide to long (unquoted)
+  names_to, # name of the new category column as a quoted string
+  values_to # name of the new value column as a quoted string
+)
+
+iris %>% select(Petal.Length, Petal.Width, Species) %>% 
+  pivot_longer(cols = c(Petal.Length, Petal.Width), 
+               names_to = "Measurement", 
+               values_to = "cm")
+```
+
+pivot_wider() reshapes the data to have more columns
+
+```{r}
+pivot_wider(mydata, 
+  id_cols, # optional vector of columns you do not want affected
+  names_from, # category column(s) to pivot from long to wide
+  values_from # value columns(s) that hold data for each category column
+  names_sep # optional string separator for category-value columns
+)
+
+rent_income_wide <- pivot_wider(us_rent_income,
+             # id_cols = optional vector of unaffected columns,
+             names_from = c(variable),
+             values_from = c(estimate, moe),
+             names_sep = "_"         
+)
+```
+
+## Iterating
+
+repeating the same function or series of steps many times
+
+### Base R functions
+
+#### IF and IF ELSE
+
+`if()` and `ifelse()` statements are ways of returning a value based on a conditional statement
+
+```{r}
+if (test_expression) {
+statement
+}
+
+x <- 5
+if(x > 0){
+print("Positive number")
+}
+```
+
+#### FOR loops
+
+For loops allow you to do something many times, or iterate a function
+
+```{r}
+newvector <- c() # create an empty vector
+
+for(i in 1:nrow(iris)){ # for each value (i) that occurs in the sequence 1 through nrow(iris)
+  # do this thing with that value substituted in for i
+  newvector[i] <- iris$Petal.Length[i] - iris$Petal.Width[i] 
+  }
+
+newvector
+```
+
+### Tidyverse functions
+
+Using the `across()` function to apply a function to many columns
+
+#### Mutating multiple columns
+
+```{r}
+# Example: this converts all four columns to character
+iris |> 
+  mutate(
+    across(Sepal.Length:Petal.Width, as.character)
+  )
+```
+
+### Summarizing multiple columns
+
+```{r}
+iris |> summarize(
+  n = n(),
+  across(Sepal.Length:Petal.Width, sum),
+)
+
+```
+
+#### Change multiple data frames
+
+`map()` allows you to do the same function (iterate) to multiple dataframes at the same time
+
+```{r}
+typeof(iris3)
+
+iris3$versicolor
+someirises <-  list(iris[1:4], iris[1:4], iris[1:4])
+
+map(someirises, colSums)
+```
+
+# Summarizing, Counting, and Uncounting
+
+## count()
+
+gets you the number of rows in an object. group_by() makes it count separately for different levels of a factor, or different combinations of two factors.
+
+```{r}
+mpg %>% count()
+
+mpg %>% group_by(manufacturer) %>% count()
+
+mpg %>% group_by(manufacturer, model) %>% count()
+```
+
+## uncount()
+
+If you have a dataframe where one row already contains count data, and you would like to expand it so that one row is each observation (i.e., if the count value is 4, to duplicate that row 4 times). In this example of survey data, the data was already summarized, but we'd rather have one row per response.
+
+```{r}
+freq_table <- tribble(
+  ~response,           ~n,
+  "too strict",        99,
+  "not strict enough", 507,
+  "just about right",  151,
+  "not sure",          42
+)
+
+nrow(freq_table)
+sum(freq_table$n)
+# number of responses
+
+freq_table %>% uncount(n, .id = "ResponseID")
+
+freq_table %>% uncount(n, .id = "ResponseID") %>% nrow()
+# same as number of responses - number of rows.
+```
+
+## summarize() or summarise()
+
+will compute summary statistics (or other) over values in one or more columns. mean, median, max, min, sd, and n() \[count\] will all work.
+
+works with group_by().
+
+```{r}
+mpg %>% summarize(MeanCityMPG = mean(cty), MeanHwyMPG = mean(hwy))
+
+mpg %>% group_by(cyl) %>% summarize(MeanCityMPG = mean(cty), MeanHwyMPG = mean(hwy), n = n())
+
+mpg %>% group_by(manufacturer, model) %>% summarize(MeanCityMPG = mean(cty), MeanHwyMPG = mean(hwy), n = n())
+
+```
+
+# Saving the outputs of your data analysis
+
+## saving or exporting your data to CSV
+
+Let's say you've successfully cleaned your data and you want to save it in its clean form so that you or your teammates or future collaborators can use it. This is very easy and very similar to the functions you used to import your data!
+
+```{r}
+write_csv(iris, "iris.csv")
+
+```
+
+## saving to a .Rdata file
+
+This is great if you have multiple objects to keep together and know that a future user will be using R to look at it.
+
+```{r}
+save(iris, cars, file = "AFewThings.Rdata")
+```
+
+## Save or write a picture, graph, plot, image to file PDF TIFF or JPG
+
+```{r}
+
+# Open the file
+pdf("rplot.pdf") # need to create a new file name here, including suffix
+# Create a plot
+ggplot()+geom_whatever()
+# Close the pdf file (look in the Files tab/Project folder)
+dev.off() 
+
+# also works for JPG - can define the image size
+jpeg("rplot.jpg", width = 350, height = "350") # Open the file
+ggplot()+geom_whatever()
+dev.off()
+
+# also works for JPG - can define the image size
+tiff("rplot.tiff", width = 4, height = 3, units = "in", res = 300) # sets the size and resolution to 300 dpi (very crisp)
+ggplot()+geom_whatever()
+dev.off()
+```
+
+## Export table: Nicely formatting and exporting a table from R
+
+```{r}
+# Create a summary table
+iris_summary <- iris %>% 
+  group_by(Species) %>% 
+  summarize(
+    n = n(), 
+    MeanSL = mean(Sepal.Length), 
+    SD_SL = sd(Sepal.Length), 
+    MeanSW = mean(Sepal.Width), 
+    SD_SW = sd(Sepal.Width))
+
+# format the numbers so that they're in appropriate significant figures
+iris_rounded <- iris_summary %>% mutate_at(c("MeanSL", "SD_SL", "MeanSW", "SD_SW"), ~round(.,digits = 2))
+```
+
+### paste or combine or merge or fuse or merge the Mean and SD columns for each variable to get a pretty looking Mean +/- SD column
+
+```{r}
+# combine with parentheses around the standard deviation using the paste function
+iris_rounded %>% 
+  mutate(`Mean Sepal Length (SD)` = paste(MeanSL, " (", SD_SL,")", sep = ""))
+
+# OR
+
+# pasted with the +/- symbol
+iris_rounded %>% 
+  mutate(`Sepal Length (M ± SD)` = paste(MeanSL, label="±", SD_SL)) 
+# the +/- symbol was pasted in from elsewhere, I don't know how to directly type it in
+
+# OR
+
+# use UNITE to merge the columns without paste and specify the delimiter
+# general format: 
+  # unite("New Column Name", c(Columns to Unite), sep = "what you want between them")
+
+iris_rounded %>%
+  unite(`Sepal Length (M ± SD)`, MeanSL:SD_SL, sep = "±")
+
+```
+
+#### Complete example of a nice table:
+
+```{r}
+iris_table <- iris_rounded %>% 
+  mutate(`Sepal Length (M ± SD)` = paste(MeanSL, label="±", SD_SL), 
+         `Sepal Width (M ± SD)` = paste(MeanSW, label="±", SD_SW)) %>%
+  select(Species, n, `Sepal Length (M ± SD)`, `Sepal Width (M ± SD)`)
+```
+
+#### View that table nicely with kable(), exports pretty when knitted
+
+```{r}
+iris_table %>% knitr::kable()
+```
+
+### Export tables to Word:
+
+-   Create a table or data.frame in R.
+-   Write this table to a comma-separated .txt file using write.table().
+-   Copy and paste the content of the .txt file into Word.
+-   In Word, select the text you just pasted from the .txt file
+-   go to Table → Convert → Convert Text to Table…
+-   make sure “Commas” is selected under “Separate text at”, click OK
+
+```{r}
+# Export table
+write.table(iris_summary, file = "iristable.txt", sep = ",", row.names = F)
+```
+
+# COUNT and SUMMARISE or SUMMARIZE collapse many rows into few rows with the help of GROUP_BY()
+
+```{r}
+iris %>% 
+  group_by(Species) %>% # calculate it separately for each species
+  summarize(MeanPetalLength = mean(Petal.Length),
+            MeanPetalWidth = mean(Petal.Width))
+
+```
+
+# Plotting with GGplot
+
+There are three really basic components you need for any ggplot - the dataset, the variables you want on each axis, and a geom to tell it what kind of plot to make. Examples of geoms: geom_bar(), geom_histogram(), geom_boxplot(), geom_line() - all pretty intuitive about what they'll make! These pieces are layered into the plot with + signs.
+
+What it looks like when you put those things together ggplot(<dataset>) + aes(x = <variable you want on the x-axis from dataset>, y = <ditto for y>) + geom\_<typeofplot>(<modifiers of that plot>)
+
+```{r}
+library(fivethirtyeight)
+```
+
+```{r}
+ggplot(candy_rankings) +  # this line makes the space to put the plot, the background
+  aes(x = chocolate) + # this says what to put on the axes
+  geom_bar() # this says what kind of plot to make, in this case, a barplot that automatically did counts of the observations of which candies were chocolate or not chocolate. 
+```
+
+ggplots can be defined as an object and recalled later too. This is useful when you are adding more geoms and trying things out, or when you're compiling the plots into a multiple plot figure or exporting them.
+
+```{r}
+chocolate_bar <- ggplot(candy_rankings) +  
+  aes(x = chocolate) + 
+  geom_bar() 
+
+chocolate_bar
+```
+
+## Geom vs. Stat
+
+Some plots can use stat\_ instead of geom\_ for the visualization. You can think of geoms as geometric objects, which you'll use most often, while stat\_ is for statistical transformations. For example, here we've plotted the win percentage (how often people ranked it in their favorites) against sugar percent, to ask the question, do sweeter candies win more often?
+
+We're using the geom_point() function to plot this as a scatter plot.
+
+```{r}
+sweetness <- ggplot(candy_rankings) + 
+  aes(x = sugarpercent, y = winpercent) + 
+  geom_point()
+```
+
+To add a best-fit regression line, we can use the stat_smooth() function.
+
+```{r}
+#notice how you can add the layer to the already created object
+sweetness + 
+  stat_smooth(method = "lm")
+```
+
+```{r}
+sweetness <- ggplot(candy_rankings) + 
+  aes(x = chocolate, y = sugarpercent) + 
+  stat_boxplot()
+sweetness
+```
+
+## Reference for which geoms/stats to use for which kinds of plots:
+
+https://ggplot2.tidyverse.org/reference/
+
+Also, see the ggplot2-cheatsheet.pdf file in this folder.
+
+## Try making a histogram! Play around with some of the variables and plot types from these references.
+
+## Modifying colors
+
+Reference: bit.ly/colors-r
+
+You can change the color as a SET AESTHETIC in the geom argument. Test out how it works on differenc geoms!
+
+```{r}
+ggplot(candy_rankings) +  
+  aes(x = chocolate) + 
+  geom_bar(color = 'darkblue', fill = 'coral') 
+```
+
+If you want the color to reflect another variable, as a MAPPED AESTHETIC (because you've mapped color to that variable) for example, if there is fruit in the candy too, then you can assign that under aes().
+
+```{r}
+ggplot(candy_rankings) +  
+  aes(x = chocolate, fill = fruity) + 
+  geom_bar() 
+```
+
+you can assign specific colors to your fills or other aesthetics using scale_xxx_manual or
+
+```{r}
+ggplot(candy_rankings) +  
+  aes(x = chocolate, fill = fruity) + 
+  scale_fill_brewer(palette = 1) +
+  geom_bar() 
+
+ggplot(candy_rankings) +  
+  aes(x = chocolate, fill = fruity) + 
+  scale_fill_manual(values = c("magenta", "limegreen")) +
+  geom_bar() 
+```
+
+## Shapes
+
+Working on a scatterplot and want the points to be different shapes? Assign them as a SET AESTHETIC
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = pricepercent,
+      y = winpercent) +
+  geom_point(shape = 2)
+```
+
+Similarly, you can map shape to another variable as a MAPPED AESTHETIC
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = pricepercent,
+      y = winpercent, 
+      shape = chocolate) +
+  geom_point()
+```
+
+## Labels
+
+Change your plot title, subtitle, caption, x or y axis labels or names Pretty self-explanatory here. labs() are added separately from the other plot parameters.
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = sugarpercent, 
+      y = winpercent) +
+  geom_point() +
+  labs(x = "Sugar Percentage",
+       y = "Win Percentage",
+       title = "Relationship between the dependent and independent variable",
+       subtitle = "for Halloween candies",
+       caption = "Based on an online Survey by FiveThirtyEight")
+
+```
+
+## X and Y axis limits
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = sugarpercent, 
+      y = winpercent) +
+  geom_point() +
+  xlim(0, 1) +
+  ylim(0, 100)
+```
+
+## Examples of other types of plots
+
+### Barplot
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = chocolate) + 
+  geom_bar()
+```
+
+## Histogram
+
+```{r}
+ggplot(candy_rankings) + 
+  aes(x = winpercent) +
+  geom_histogram()
+```
+
+### Density Plot
+
+```{r}
+ggplot(candy_rankings) + 
+  aes(x = winpercent) +
+  geom_density()
+```
+
+### Dot plot
+
+```{r}
+ggplot(candy_rankings) + 
+  aes(x = winpercent) +
+  geom_dotplot()
+```
+
+Note the error message - try adding the argument "binwidth = 3" to the geom_dotplot() line.
+
+### Boxplot
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = chocolate, 
+      y = winpercent) +
+  geom_boxplot()
+```
+
+### Scatter plot
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = pricepercent, 
+      y = winpercent) +
+  geom_point()
+```
+
+### Examples of multiple layered plots
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = pricepercent, 
+      y = winpercent) +
+  geom_point() +
+  geom_smooth()
+```
+
+With a line fitted using the lm() function instead of a smoothed line. Test out what happens when you set "se = TRUE".
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = pricepercent, 
+      y = winpercent) +
+  geom_point() +
+  geom_smooth(method = "lm", 
+              se = FALSE)
+```
+
+Multiple plots in multiple panes - what happens when you move the . and \~ next to chocolate, like in the commented out line?
+
+```{r}
+ggplot(candy_rankings) +
+  aes(x = sugarpercent,
+      y = winpercent) +
+  geom_point() +
+  facet_grid(.~chocolate)
+  #facet_grid(chocolate~.)
+```
+
+# General Linear Models
+
+## Assumption Checks
+
+### Normality
+
+```{r}
+# Visually
+
+somedata <- cbind(seq(1:50), rnorm(50, mean = 15, sd = 5)) %>% as_tibble()
+glimpse(somedata)
+
+hist(somedata$V2, breaks = 5) # breaks codes for the number of bins
+plot(density(somedata$V2))
+
+ggplot(somedata, aes(x = V2)) + geom_histogram(binwidth = 3) # binwidth is the size of bins
+
+# Statistically with the Shapiro-Wilk test 
+shapiro.test(somedata$V2)
+```
+
+##### With a Q-Q plot
+
+```{r}
+qqnorm(somedata$V2)
+qqline(my_data$len, col = "steelblue", lwd = 2)
+
+# OR
+
+#library("car")
+car::qqPlot(somedata$V2)
+
+# does your data fit in the blue zone (standard error)? Then you're good. 
+```
+
+### Homoscedasticity/Heteroscedasticity/ Homogeneity of Variance
+
+```{r}
+# Visually, for a regression model
+carmodel <- lm(dist ~ speed, data = cars)
+plot(dist~ speed, cars)
+plot(carmodel, which = c(1))
+
+# Visually, for an ANOVA  model
+irismodel <- lm(Sepal.Length ~ Species, data = iris)
+plot(irismodel, which = c(1))
+# Does it look like the points are evenly distributed above and below on both ends? Not too many outliers (labeled with numbers)?
+```
+
+Specific tests for ANOVAs
+
+```{r}
+# Bartlett's Test for Homogeneity of Variance (only good with normal data) 
+bartlett.test(Sepal.Length ~ Species, data = iris)
+
+# Levene's Test for Homogeneity of Variance (okay with marginally-normal data)
+# library(car)
+car::leveneTest(Sepal.Length ~ Species, data = iris)
+
+# Fligner-Killeen test: a non-parametric test which is very robust against departures from normality.
+fligner.test(weight ~ group, data = PlantGrowth)
+```
+
+### Transformations
+
+#### Right-skewed data
+
+Logarithmic (log) transformation - right skewed data
+
+Does not work with zero - can add 1 or another small value to make it fit.
+
+```{r}
+x <- rbeta(10000,2,5) # right skewed data
+plot(hist(x))
+
+log() 
+log(x + 1)
+
+
+hist(log(x))
+# is actually the natural log, not base 10
+```
+
+The square root transformation (right-skewed distributions)
+
+```{r}
+sqrt()
+
+hist(sqrt(x))
+```
+
+The Reciprocal transformation (right-skewed data)
+
+```{r}
+1/x
+
+hist(1/x)
+```
+
+#### Left-Skewed Data
+
+Reflect data by subtracting from the maximum data point
+
+```{r}
+x <- rbeta(10000,5,2) # left skewed data
+hist(x)
+
+hist(max(x)-x)
+```
+
+Square transformation
+
+```{r}
+x^2
+
+hist(x^2)
+```
+
+Exponential Transformation
+
+```{r}
+exp(x)
+
+hist(exp(x))
+```
+
+#### Proportion Data
+
+Arcsine transformation (out of fashion, use a logistic regression instead)
+
+```{r}
+# The arcsine transformation (controversially used for proportion data)
+
+z <- rnorm(n = 30, mean = 0.3, sd = 0.25) 
+z <- z[z>0 & z<1]
+hist(z)
+asin(sqrt(x))
+
+hist(asin(sqrt(z)))
+
+```
+
+## Simple Linear Regression
+
+```{r}
+# modeling
+
+model <- lm(Sepal.Length ~ Petal.Length, data = iris)
+summary(model)
+
+# coefficients
+model$coefficients
+
+# graphing
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+
+# OR Input your own formula for a different kind of fit
+# y = exp(x) for exponential
+# y = log(x) for logistic
+# y ~ x + I(x^2) for polynomial or squared etc. 
+
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + geom_point() + 
+  geom_smooth(method = "lm", formula = (y ~ x + I(x^2)), se = FALSE)
+
+cor.test(iris$Sepal.Length, iris$Sepal.Width)
+plot(Sepal.Length ~ Sepal.Width, iris)
+```
+
+## Multiple Linear Regression
+
+```{r}
+carmodel <- lm(mpg ~ wt + hp, data = mtcars)
+summary(carmodel)
+
+# no graphing
+```
+
+## T-tests
+
+One sample t-test
+
+```{r}
+# one sample  t-test
+somedata <- rnorm(23, mean = 10, sd = 3)
+
+t.test(somedata, mu = 15) # mu is the expected mean
+
+```
+
+Unpaired two sample t-test
+
+```{r}
+# unpaired, two sample t-test
+twochicks <- ChickWeight %>% filter(Time == 21, Diet == 2 | Diet == 1)
+twochicks
+
+t.test(weight ~ Diet, twochicks)
+```
+
+Paired two sample t-test
+
+```{r}
+# this dataset shows heights and ages for trees that were tracked over their lifetimes. The Seed column is the unique identifier per tree.
+
+# This t-test asks if trees change size between age 20 and age 25 and compares the same trees. 
+twotimetree <- Loblolly %>% filter(age == 20 | age == 25)
+twotimetree
+
+t.test(height ~ age, data = twotimetree, paired = TRUE)
+# the function assumes that consecutive observations are the pairs, so you may need to sort by your ID column. 
+
+```
+
+## ANOVA
+
+### One-Way ANOVA
+
+(Completely Randomized Design)
+
+(there's no dataset here, just a reminder of how to format it)
+
+```{r eval=FALSE}
+fit <- aov(y ~ A, data=mydataframe)
+
+irismodel <- lm(Sepal.Length ~ Species, data = iris)
+anova(irismodel)
+
+irismodel <- aov(Sepal.Length ~ Species, data = iris)
+```
+
+### Post-Hoc test
+
+```{r}
+# Post-hoc test
+TukeyHSD(irismodel)
+
+## Plotting comparisons using the ggsignif package
+https://cran.r-project.org/web/packages/ggsignif/vignettes/intro.html
+ggplot(iris, aes(x = Species, y = Sepal.Length)) +
+  geom_boxplot() + # using `ggsignif` to display comparison of interest
+  geom_signif(
+    comparisons = list(c("versicolor", "virginica")),
+    map_signif_level = TRUE
+  )
+```
+
+## Two Way ANOVA
+
+The two-way factorial design has TWO categorical predictor variables and ONE response, and you are interested in interactions between the two predictor variables.
+
+Example: How do temperature (hi, med, lo) and acidity (more acidic, more basic) affect algal photosynthesis rates?
+
+```{r eval=FALSE}
+fit <- aov(y ~ A + B + A:B, data = mydataframe)
+fit <- aov(y ~ A*B, data = mydataframe) # same thing
+```
+
+Two-way ANOVA example
+
+```{r}
+glimpse(mtcars)
+model <- lm(mpg ~ as.factor(cyl) + as.factor(gear), data = mtcars)
+anova(model)
+
+# OR, the following code gives EXACTLY the same thing. 
+
+model <- aov(mpg ~ as.factor(cyl) + as.factor(gear), data = mtcars)
+summary(model)
+```
+
+```{r}
+carplot <- ggplot(mtcars) + 
+  aes(x = as.factor(cyl), y = mpg, fill = as.factor(gear)) + 
+  geom_boxplot()
+carplot
+```
+
+## ANCOVA
+
+Analysis of Covariance (ANCOVA) uses general linear models to adjust treatment effects to account for a known confounding variable. - Confounding variables bias estimates of treatment effects. This is useful when you can't design an experiment that eliminates all confounding variables.
+
+Includes one categorical variable (A), which is the treatment we're interested in, and one continuous variable (x), which is the confounding variable.
+
+Basic formula:
+
+```{r eval=FALSE}
+fit <- aov(y ~ A + x, data=mydataframe)
+```
+
+Involves two rounds of model fitting: STEP 1) Test for the interaction between the treatment and covariate
+
+```{r}
+attach(mtcars)
+```
+
+Horsepower has an effect on MPG, but transmission type (automatic or manual, coded as "am") may confound it.
+
+```{r}
+fit <- aov(mpg ~ hp*am, data = mtcars)
+summary(fit)
+```
+
+Is the interaction significant? No.
+
+STEP 1a) If no interaction is detected, then interaction term is dropped from model in second round. \*\*\* in our example the interaction isn't significant. Therefore we drop the interaction:
+
+```{r}
+result <- aov(mpg ~ hp + am,data = mtcars)
+```
+
+STEP 2) compare the two models (with and without the interaction).
+
+```{r}
+result1 <- aov(mpg~hp*am,data = mtcars) # with interaction
+result2 <- aov(mpg~hp+am,data = mtcars) # without interaction
+
+print(anova(result1,result2))
+```
+
+Since the p-value is greater than 0.05 we conclude that the interaction between horse power and transmission type is not significant. So the mileage per gallon will depend in a similar manner on the horsepower of the car in both auto and manual transmission mode.
+
+## Chi-square Test
+
+Remember, data must be in a table or matrix, and you should only feed the function the values, not the row names.
+
+```{r}
+#install.packages("rstatix")
+library(rstatix)
+
+mtcars_counts <- mtcars |> group_by(cyl, gear) |> count() |> pivot_wider(names_from = cyl, values_from = n, values_fill = 0) 
+
+chisq_test(mtcars_counts[,2:4])
+```
+
+## G-test
+
+```{r}
+install.packages("AMR")
+# G-test Of Goodness-of-Fit (Likelihood Ratio Test)
+# The G-test can run the same thing as a chi-square test
+AMR::g.test(mtcars_counts[,2:4])
+
+# Can also test if a count distributions is different than expected
+
+# Do the counts differ from expected proportions?
+AMR::g.test(x = c(80, 125, 95), #observed values
+      p = c(1/3, 1/3, 1/3)) #expected proportions 
+
+### UNDER CONSTRUCTION ###
+
+```
+
+## Binomial Test
+
+Toads: 14 right-handed toads out of 18 toads - is that statistically significant?
+
+```{r}
+?binom.test
+# x is the number of "successes"
+# n is the sample size
+# p is the proportion predicted under the null hypothesis
+binom.test(x = 14, n = 18, p = 0.5)
+
+binom.test(x = 14, n = 18, p = 0.5, alternative = "two.sided", conf.level = 0.95)
+```
+
+`{r}`
+
+# GLM: General Linear Models
+
+```{r}
+
+```
+
+GLMM: Generalized Linear Mixed Models
+
+```{r}
+
+```
+
+## Mixed Models
+
+Models with a combination of random and fixed effects
+
+```{r message=FALSE, warning=FALSE}
+library(lme4)
+library(lmerTest)
+```
+
+Fixed effects are our variables of interest, that we are directly testing. They are incorporated into the model formula the same way as in lm().
+
+*Examples: temperature, treatment, etc.*
+
+Random effects are variables that are not directly of interest scientifically and would not be repeated if the experiment were done again.
+
+*Examples: block, site, family, clone, transect*
+
+#### Simple Random Effect
+
+```{r}
+Loblolly
+
+# In this data, we are interested in the effect of age on the height of the tree, but we have multiple observations per tree, which introduces non-indepenendence. 
+
+# We include a simple random effect of tree: 
+model1 <- lmer(height ~ age + (1|Seed), data = Loblolly)
+summary(model1)
+```
+
+#### Nested Random Effects
+
+In this example using chicks fed different diets and monitored multiple times, we choose to specify two random effects - the individual chick, and the time at which it was measured. The time observations are "nested" within each Chick, and for this particular model, we don't care about the fixed effect of time (we know they grow), we only care about whether the different diets result in different weights.
+
+```{r}
+model2 <- lmer(weight ~ Diet + (Time | Chick), data = ChickWeight)
+
+summary(model2)
+ 
+# It looks like Diet 4 resulted in much heavier chicks. 
+```
+
+In this formulation, we do care about the effect of Time; we want to know whether the slopes are different (i.e., an interaction), which reflects different growth rates.
+
+```{r}
+model3 <- lmer(weight ~ Diet * Time + (Time | Chick), data = ChickWeight)
+
+summary(model3)
+```
+
+```{r}
+ChickWeight |> group_by(Time, Diet) |> summarize(meanweight = mean(weight), seweight = sd(weight)/sqrt(n())) |> 
+ggplot() + 
+  aes(x = Time, y = meanweight, color = Diet) + 
+  geom_point() + 
+  geom_line() +
+  geom_errorbar(aes(ymin = meanweight -seweight, ymax = meanweight + seweight), width = 0) + 
+  labs(y = "Weight")
+```

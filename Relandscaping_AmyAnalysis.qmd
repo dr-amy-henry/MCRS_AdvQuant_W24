@@ -1,0 +1,1022 @@
+---
+title: "Relandscaping_Amy'sSpace"
+format: html
+editor: visual
+---
+
+# Re-landscaping Experiment
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+```
+
+## Arthropods
+
+### Vacuum
+
+#### Import
+```{r}
+Vacuum_data_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1SoHujYHb3jshu-h4ul7Ve6oQmSx-uFdD6yMwhwvMfRg/edit#gid=1857926111", sheet = 2, skip = 1, col_types = "c")
+
+Vacuum_metadata_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1GkecYwgHl8--V4i72OeBN3WDmHr5y3vqSRrye53Mc5E/edit#gid=1748437042", sheet = 2, col_types = "c")
+```
+
+#### Tidy
+```{r}
+Vacuum_metadata <- Vacuum_metadata_raw |> 
+  slice(-1) |> 
+  select(`NEW Sample_ID`, `CollectionDate`) |> 
+  rename(
+    SampleID = `NEW Sample_ID`
+  ) |> 
+  mutate(
+    SampleID = str_replace(SampleID, "-", "_"),
+    SampleID = str_replace(SampleID, "ENCCLA", "ENCCAL"),
+    CollectionDate = mdy(CollectionDate)
+  ) 
+
+Vacuum_data <- Vacuum_data_raw |> 
+  # rename columns to be Tidy
+  rename(
+    SampleID = `Sample ID`,
+    Treatment = `N/NN`,
+    SortDate = `Date of sorting`,
+    SpecComments = `Specific comments about specimen`,
+    Count = `#`,
+    ARCA_code = `ARCA code`,
+    size_mm = `size (mm)`,
+    SpeciesCode = `PlantSP`
+  ) |> 
+  mutate(
+    Treatment = case_when(
+      Treatment == "N" ~ "Native",
+      Treatment == "NN" ~ "NonNative"
+    )
+  ) |> 
+  mutate(
+    SampleID = str_replace(SampleID, "-", "_"),
+    SampleID = str_replace(SampleID, "ENCCLA", "ENCCAL"),
+    SpeciesCode = str_replace(SpeciesCode, "ENCCLA", "ENCCAL")
+  ) |> 
+  left_join(Vacuum_metadata, by = "SampleID", multiple = "all")
+
+
+Vacuum_test <- Vacuum_data |> 
+  select(c(1:4,21, 10:19)) |> 
+  mutate(Year = year(CollectionDate)) |> 
+  arrange(Year, Treatment, SpeciesCode, PlantRep) |> 
+  filter(Treatment == "Native", Year == 2021)
+
+```
+
+Legacy code - assessing why we can't match the collection dates over
+```{r}
+Vacuum_data$SampleID |> unique()
+
+Vacuum_metadata$SampleID |> unique()
+
+intersect(unique(Vacuum_data$SampleID), unique(Vacuum_metadata$SampleID))
+
+# 61 values intersect
+setdiff(Vacuum_data$SampleID, Vacuum_metadata$SampleID)
+#16 in data but not metadata
+
+length(unique(Vacuum_metadata$SampleID))
+length(unique(Vacuum_data$SampleID))
+
+setdiff(Vacuum_metadata$SampleID, Vacuum_data$SampleID)
+
+unique(Vacuum_data$SampleID)
+
+```
+
+#### Visualize
+```{r}
+
+# Species Richness per sample
+Vacuum_SpRich <- Vacuum_data |> 
+  mutate(
+    Year = year(CollectionDate)
+  ) |> 
+  group_by(SampleID, Treatment, Year) |> 
+  count() |> 
+  separate(SampleID, into = c("Null", "SpeciesCode", "Replicate"), sep = "_") |> 
+  group_by(SpeciesCode, Treatment, Year) |> 
+  summarize(SpRich = mean(n))
+  
+
+Vacuum_SpRich |> ggplot() +
+  aes(x = SpeciesCode, y = SpRich) + 
+  geom_col() + 
+  facet_grid(Year~Treatment, scales = "free")
+```
+
+
+### Pitfall
+
+MISSING???
+
+## Community
+
+### Quadrat
+
+#### Import
+```{r}
+Quads_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1pm9Anwi05_4zlfiAcOGONzFudASnPW6QmV69r2y3H3E/edit#gid=1657154286", sheet = 1, col_types = "c")
+
+Quads_post2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1rWFnFryqc-CMA62n_R9md-IhtLMg84dzqyYYZ7ZMxFQ/edit#gid=2068758257", sheet = 1, col_types = "c", col_names = FALSE)
+
+Quads_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/140_CToBFVks3ixQOYw2soR9LtQRVUqhGN_7H2noZdqY/edit#gid=2052669892", sheet = 1, col_types = "c", col_names = FALSE)
+
+#### MISSING QUADS FOR LATER??? ####
+```
+
+#### Tidy
+```{r}
+Quads_pre2018 <- Quads_pre2018_raw |> 
+  # rename columns to be tidy
+  rename(
+    SpeciesCode = `Species Code`
+  ) |> 
+  # format columns
+  mutate(
+    Date = mdy(Date), 
+    Treatment = case_when(
+      Treatment == "NN" ~ "NonNative",
+      Treatment =="N" ~"Native"
+    ),
+    across(c(Count, Cover), as.numeric),
+    across(c(Turf, Treatment), factor)
+
+    ) 
+    
+    
+  # Add block column to match the pre-planting? 
+
+Quads_post2018 <- Quads_post2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |> 
+  
+  # fill missing values for observation identifiers
+  fill(Block, Treatment, Quad) |> 
+  # rename columns to be tidy
+  rename(
+    SpeciesCode = `Species Code`
+  ) |> 
+  mutate(
+    Date = mdy(Date),  # format date column
+    Treatment = factor(Treatment),
+    across(c(Count, Cover), as.numeric),
+    Treatment = case_when(
+      Treatment == "NN" ~ "NonNative",
+      Treatment =="N" ~"Native"
+    )
+)
+
+Quads_w2019 <- Quads_w2019_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |> 
+  
+  # fill missing values for observation identifiers
+  fill(Block, Treatment, Quad) |> 
+  # rename columns to be tidy
+  rename(
+    SpeciesCode = `Species Code`
+  ) |> 
+  mutate(
+    Date = mdy(Date),  # format date column
+    Treatment = factor(Treatment),
+    across(c(Count, Cover), as.numeric),
+)
+
+Quads_Reland <- bind_rows(Quads_pre2018, Quads_post2018, Quads_w2019)
+
+Quads_Reland$SpeciesCode |> unique()
+
+Quads_Reland <- Quads_Reland |> 
+  mutate(SpeciesCode = case_when(
+    SpeciesCode == "HEDHEL (eng ivy)" ~ "HEDHEL",
+   # str_starts(SpeciesCode, "U") == TRUE ~ "Unknown",
+    SpeciesCode == "-" ~ "No Species Present",
+    TRUE ~ SpeciesCode
+  )) 
+```
+
+#### Visualize
+```{r}
+Quads_Reland |>  
+  #filter(SpeciesCode != "CYNDAC") |> 
+  ggplot() +
+  aes(x = Quad, y = Count, fill = SpeciesCode) +
+  geom_col(position = "stack") + 
+    facet_wrap(Treatment ~ Date, scales = "free")
+
+```
+##### NMDS
+```{r}
+library(vegan)
+Quads_Reland_temp <- Quads_Reland |> 
+    filter(Date > mdy("01/01/2019")) |> 
+  mutate(Index = paste(Date,Treatment,Quad,Block)) 
+
+Quads_Reland_matrix_withindex <- Quads_Reland_temp |>
+  select(SpeciesCode, Count, Index) |> 
+  pivot_wider(
+    names_from = SpeciesCode, values_from = Count, values_fill = 0) 
+
+Quads_Reland_matrix <- Quads_Reland_matrix_withindex |>
+  select(
+    #-`No Species Present`,
+    -Index)
+
+Quads_Reland_index <- Quads_Reland_temp |> select(Index, Date,Treatment,Quad,Block) |> distinct() |> right_join(Quads_Reland_matrix_withindex, by = "Index")
+
+Quads_Reland_matrix 
+Quad_nmds <- metaMDS(Quads_Reland_matrix[,-1], k=2)
+
+stressplot(Quad_nmds)
+
+plot(Quad_nmds)
+```
+
+
+```{r}
+ordiplot(Quad_nmds,type="n")
+orditorp(Quad_nmds,display="species",col="red",air=0.01)
+orditorp(Quad_nmds,display="sites",cex=1.25,air=0.01)
+```
+
+
+```{r}
+
+Quad_mds_index <- bind_cols(Quads_Reland_index, Quad_nmds$points)
+
+
+ggplot(Quad_mds_index) + 
+  aes(x = MDS1, y = MDS2, color = Treatment) + 
+  geom_point()
+```
+
+
+
+### Transect
+
+#### Transects
+
+#### Import
+```{r}
+Transect_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1cJkfj5r5etqoMFNwmRLJAKpfPJ1k0RsPw-jTzTPVIDQ/edit#gid=1819324223", sheet = 2, trim_ws = TRUE, col_types = "c")
+
+Transect_post2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1WhhfNW9b5WHJ6FRdhvgEqxBwpdeOfs2lNNraBfSZDfY/edit#gid=1441538054", sheet = 2, col_names = FALSE, col_types = "c", trim_ws = TRUE)
+
+Transect_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1b7diSJNoQktPiesq4kX4jKUoPod9mz41d6Gm8BcyZKs/edit#gid=1984768290", sheet = 1, col_names = FALSE, col_types = "c", trim_ws = TRUE)
+```
+
+#### Tidy
+```{r}
+Transect_pre2018 <- Transect_pre2018_raw |> 
+  # rename tidy columns
+  rename(
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    SpeciesCode = `Species Code`,
+    TurfTmt = `Turf`
+  ) |> 
+  
+  # format Date column with lubridate
+  mutate(Date = mdy(Date)) |> 
+    # get rid of white space at bottom
+  filter(is.na(Observers) == FALSE)
+
+Transect_post2018 <- Transect_post2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns to be tidy and consistent
+  rename(
+    TurfTmt = `Previous Veg.`,
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    SpeciesCode = `Species Code`
+  ) |> 
+  
+  #format date column
+  mutate(
+    Date = mdy(Date)
+  ) |> 
+  
+  # get rid of white space at bottom
+  filter(is.na(Observers) == FALSE)
+
+
+Transect_w2019 <- Transect_w2019_raw |> 
+    # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns to be tidy and consistent
+  rename(
+    TurfTmt = `Previous Veg.`,
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    SpeciesCode = `Species Code`
+  ) |> 
+  
+  #format date column
+  mutate(
+    Date = mdy(Date)
+  ) |> 
+  
+  # get rid of white space at bottom
+  filter(is.na(Observers) == FALSE)
+
+
+Transects_raw <- bind_rows(Transect_pre2018, Transect_post2018, Transect_w2019)
+```
+
+```{r}
+Transects$SpeciesCode |> unique() 
+
+Transects$TransectID |> unique() 
+
+Transects |> filter(SpeciesCode == "RO")
+
+Transects <- Transects_raw |> 
+  mutate(
+    #add Dead column
+    DeadAlive = case_when(
+      SpeciesCode == "D(CYNDAC)" ~ "Dead",
+      TRUE ~ "Alive"
+    ), 
+    # Clean up Species Codes
+    SpeciesCode = case_when(
+      SpeciesCode == "D(CYNDAC)" ~ "CYNDAC",
+      str_starts(SpeciesCode, "U") == TRUE ~ "Unknown",
+      TRUE ~ SpeciesCode
+    ),
+    # Characterize Ground vs. Plant observations
+    Type = case_when(
+      nchar(SpeciesCode) < 3 ~ "Ground",
+      nchar(SpeciesCode) >= 3 ~ "Plant"
+    ),
+    Distance = as.numeric(Distance),
+    TransectID = str_remove(TransectID, " "),
+    TransectID = str_remove(TransectID, "_")
+  ) 
+
+```
+
+#### Visualize
+```{r}
+TotalPoints <- Transects |> group_by(Date, TransectID) |> 
+  summarize(TotalPoints = max(Distance))
+
+Transects |> View()
+
+Transects |> filter(TurfTmt == "Turf" & str_detect(TransectID, "No Turf") == TRUE)
+Transects |> filter(TurfTmt == "No Turf" & str_detect(TransectID, "No Turf") == FALSE)
+
+Transects |> filter(SiteID == 1 & str_detect(TransectID, "1") == FALSE)
+Transects |> filter(SiteID == 2 & str_detect(TransectID, "2") == FALSE)
+
+
+Transects |> 
+  filter(Type == "Plant") |> 
+  group_by(Date, SiteID, TransectID, SpeciesCode) |> 
+  summarize(n = n()) |>   
+  full_join(TotalPoints) |> 
+  mutate(
+    PercentCover = n/TotalPoints,
+    TurfTmt = case_when(
+      str_detect(TransectID, "No Turf") == TRUE ~ "No Turf",
+      str_detect(TransectID, "No Turf") == FALSE ~ "Turf",
+    )
+         ) |> 
+  ggplot() + 
+  aes(x = SiteID, y = PercentCover, fill = SpeciesCode) +
+  #geom_col(position = "fill") + 
+  geom_col(position = "stack") + 
+  facet_grid(
+    TurfTmt~Date,
+    #scales = "free"
+             ) +
+  labs(y = "Percent Cover")
+```
+```{r}
+Transects |> 
+  filter(Type == "Ground") |> 
+  group_by(Date, SiteID, TransectID, SpeciesCode) |> 
+  summarize(n = n()) |>   
+  full_join(TotalPoints) |> 
+  mutate(
+    PercentCover = n/TotalPoints,
+    TurfTmt = case_when(
+      str_detect(TransectID, "No Turf") == TRUE ~ "No Turf",
+      str_detect(TransectID, "No Turf") == FALSE ~ "Turf",
+    )
+         ) |> 
+  ggplot() + 
+  aes(x = SiteID, y = PercentCover, fill = SpeciesCode) +
+  #geom_col(position = "fill") + 
+  geom_col(position = "stack") + 
+  facet_grid(
+    TurfTmt~Date,
+    #scales = "free"
+             ) +
+  labs(y = "Percent Cover")
+```
+
+
+### Veg Heights
+
+#### Import
+```{r}
+VH_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1cJkfj5r5etqoMFNwmRLJAKpfPJ1k0RsPw-jTzTPVIDQ/edit#gid=1819324223", sheet = 3, col_types = "c")
+
+VH_post2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1WhhfNW9b5WHJ6FRdhvgEqxBwpdeOfs2lNNraBfSZDfY/edit#gid=1441538054", sheet = 3, col_names = FALSE, col_types = "c")
+
+VH_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1b7diSJNoQktPiesq4kX4jKUoPod9mz41d6Gm8BcyZKs/edit#gid=1984768290", sheet = 2, col_names = FALSE, col_types = "c")
+```
+
+#### Tidy
+```{r}
+VH_pre2018 <- VH_pre2018_raw |> 
+  # rename columns
+  rename(
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    GrassHt_cm = `Grass Height (cm)`,
+    ForbHt_cm = `Forb Height (cm)`,
+    ShrubHt_cm = `Shrub Height (cm)`,
+    TreeHt_cm = `Tree Height (cm)`,
+    TurfTmt = `Turf`
+  ) |> 
+  mutate(
+    Date =  mdy(Date),
+    across(GrassHt_cm:TreeHt_cm, ~replace(., is.na(.), 0)),
+    across(GrassHt_cm:TreeHt_cm, as.numeric)
+  )
+  
+VH_post2018 <- VH_post2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns
+  rename(
+    TurfTmt = `Previous Veg.`,
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    GrassHt_cm = `Grass Height (cm)`,
+    ForbHt_cm = `Forb Height (cm)`,
+    ShrubHt_cm = `Shrub Height (cm)`,
+    TreeHt_cm = `Tree Height (cm)`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date),
+    across(GrassHt_cm:TreeHt_cm, ~replace(., is.na(.), 0)),
+    across(GrassHt_cm:TreeHt_cm, as.numeric)
+  )
+  
+summary(VH_post2018) 
+
+VH_w2019 <- VH_w2019_raw |> 
+# Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns
+  rename(
+    TurfTmt = `Previous Veg.`,
+    SiteID = `Site ID`,
+    TransectID = `Transect ID`,
+    GrassHt_cm = `Grass Height (cm)`,
+    ForbHt_cm = `Forb Height (cm)`,
+    ShrubHt_cm = `Shrub Height (cm)`,
+    TreeHt_cm = `Tree Height (cm)`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date),
+    across(GrassHt_cm:TreeHt_cm, ~replace(., is.na(.), 0)),
+    across(GrassHt_cm:TreeHt_cm, as.numeric)
+  ) 
+
+
+VegHeights <- bind_rows(
+  VH_pre2018, 
+  VH_post2018,
+  VH_w2019) |> 
+  filter(is.na(Observers) == FALSE) |> 
+  pivot_longer(
+    cols = c(GrassHt_cm:TreeHt_cm), 
+    names_to = "FuncGroup", 
+    values_to = "Height_cm"
+  ) |> 
+  mutate(
+    FuncGroup = str_replace(FuncGroup, "Ht_cm", ""),
+    TransectID = str_remove(TransectID, " "),
+    TransectID = str_remove(TransectID, "_"),
+    Distance = as.numeric(Distance)
+  )
+
+VegHeights |> group_by(TransectID, Date) |> summarize(TotalPoints = max(Distance))
+  
+```
+
+
+#### Visualize
+```{r}
+VegHeights |> 
+  ggplot(aes(x = factor(Date), y = Height_cm, color = FuncGroup, shape = SiteID)) +
+    geom_jitter() + 
+  facet_grid(FuncGroup ~ TurfTmt, scales = "free")
+  
+
+
+```
+
+## Plants
+
+### Size
+
+#### Import
+```{r}
+PlantSize_fall2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1eSBq2KwwmPo6fzuMwkwwsGebJRtAeneR_V6egStgxJE/edit#gid=1316672863", sheet = 1, col_names = FALSE, col_types = "c")
+
+PlantSize_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1LGolliy43pgRPe6jIHhepG81ZwqccSWVTRT--Cp5Kc4/edit#gid=994216554", sheet = 1, col_names = FALSE, col_types = "c")
+```
+
+#### Tidy
+```{r}
+PlantSize_fall2018 <- PlantSize_fall2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`,
+    Ht_cm = `Height`,
+    Width_cm = `Width`,
+    Length_cm = `Length`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date)
+  )
+
+PlantSize_w2019 <- PlantSize_w2019_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`,
+    Ht_cm = `Height`,
+    Width_cm = `Width`,
+    Length_cm = `Length`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date)
+  )
+
+PlantSizes_raw <- bind_rows(PlantSize_fall2018,PlantSize_w2019)
+
+PlantSizes$SpeciesCode |> unique()
+
+PlantSizes <- PlantSizes_raw |> 
+  mutate(
+    Treatment = factor(Treatment),
+    across(Ht_cm:Length_cm, as.numeric),
+    Treatment = case_when(
+      Treatment == "Non-Native" ~ "NonNative",
+      TRUE ~ Treatment
+    )
+  )
+
+PlantSizes |> select(SpeciesCode,Treatment) |> unique() # looks good actually
+
+```
+#### Visualize
+```{r}
+PlantSizes |> 
+  mutate(
+    Vol_m3 = (Ht_cm*Width_cm*Length_cm)/1000000,
+    Year = year(Date),
+    Time = case_when(
+      Year == 2018 ~ "Month0",
+      Year == 2019 ~ "Month4"
+    )) |> 
+  select(Date, Time, Treatment, Block, SpeciesCode, TagNum, Vol_m3) |> 
+  group_by(Time, Treatment, Block, SpeciesCode, TagNum) |> 
+  summarize(Vol_m3 = mean(Vol_m3, na.rm = TRUE)) |> 
+  pivot_wider(names_from = Time, values_from = Vol_m3) |> 
+  mutate_all(~ifelse(is.nan(.), NA, .)) |> 
+  mutate(VolChange = (Month4/Month0)*100) |> 
+  ggplot() +
+    aes(x = SpeciesCode, y = VolChange, fill = SpeciesCode) +
+    stat_summary(fun.y = mean, geom = "col") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.1) +
+    facet_wrap(Treatment~., scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "none") +
+  labs(y = "Percent change in volume", x = "Species", caption = "Errorbars represent standard error. Volume change is measured from planting in October 2018 to February 2019.")
+```
+
+
+### Stomatal Conductance
+
+#### Import
+```{r}
+StomCon_fall2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1clAYyH0d4fvitP89qQpXOEjmCi1oHxud9FObE-T3QJI/edit#gid=654224388", sheet = 1, col_names = FALSE, col_types = "c")
+
+StomCon_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1sKABOJssY1zqF1buscaLs8OY1yHydg7avC_uEJpYKa0/edit#gid=1915052118", sheet = 1, col_names = FALSE, col_types = "c")
+```
+
+#### Tidy
+```{r}
+StomCon_fall2018 <- StomCon_fall2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`,
+    M1 = `Meas. 1`,
+    M2 = `Meas. 2`,
+    M3 = `Meas. 3`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date)
+  )
+
+StomCon_w2019 <- StomCon_w2019_raw |> 
+  select(1:10) |> 
+    # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`,
+    M1 = `Meas. 1`,
+    M2 = `Meas. 2`,
+    M3 = `Meas. 3`
+  ) |> 
+  
+  mutate(
+    Date = mdy(Date)
+  )
+
+StomCon_raw <- bind_rows(StomCon_fall2018, StomCon_w2019)
+
+StomCon$M1 |> unique()
+StomCon <- StomCon_raw |> 
+  mutate(
+    M1 = case_when(M1 == "-" ~ NA, TRUE ~ M1), 
+    M2 = case_when(M2 == "-" ~ NA, TRUE ~ M2), 
+    M3 = case_when(M3 == "-" ~ NA, TRUE ~ M3), 
+    across(M1:M3, as.numeric),
+    StomCon = (M1 + M2 + M3)/3,
+    Treatment = case_when(
+      Treatment == "Non-Native" ~ "NonNative",
+      TRUE ~ Treatment
+    ),
+    Year = year(Date)
+  ) |> 
+  filter(Date > "2018-10-31")
+
+StomCon_change <- StomCon |> 
+  select(Treatment, Block, SpeciesCode, TagNum, Date, StomCon) |> 
+  pivot_wider(names_from = Date, values_from = StomCon)
+
+```
+#### Visualize
+```{r}
+StomCon |> ggplot() +
+    aes(x = factor(Year), y = StomCon, fill = SpeciesCode) +
+    geom_boxplot() +
+    facet_wrap(Treatment~SpeciesCode, 
+               #scales = "free"
+               ) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "none")
+
+StomCon$Date |> unique()
+
+StomCon |> ggplot() +
+    aes(x = SpeciesCode, y = StomCon, fill = SpeciesCode) +
+    stat_summary(fun.y = mean, geom = "col") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.1) +
+    facet_wrap(Treatment~., scales = "free") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "none")
+
+
+StomCon |> ggplot() +
+    aes(x = Date, y = StomCon, color = SpeciesCode, group = TagNum) +
+    geom_point() + 
+  geom_line(aes(group = TagNum)) + 
+  facet_wrap(Treatment ~ SpeciesCode) 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "none")
+```
+#### Analysis
+
+```{r}
+library(lme4)
+StomCon_model <- lm(StomCon ~ factor(Year) * SpeciesCode, data = StomCon)
+StomCon
+
+summary(StomCon_model)
+```
+
+## Soil
+
+### Soil Moisture
+
+#### Import
+```{r}
+Moisture_f2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1UiNiVcDzX2-pz8F5pj0vyiHwafNnanz_wvl5dRuX-KM/edit#gid=294630557", sheet = 1, col_names = FALSE, col_types = "c")
+
+Moisture_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1_7iSBox7I8qS34FrlvtRQqBdTvw_12Iytp9nKj4Wxf4/edit#gid=576750563", sheet = 1, col_names = FALSE, col_types = "c")
+
+# Moisture_sp2019 <- MISSING
+
+### MISSING DATA???###
+```
+
+#### Tidy
+```{r}
+Moisture_f2018 <- Moisture_f2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`
+  ) |> 
+  
+    #date column
+    mutate(
+      Date = mdy(Date)
+    ) |> 
+  pivot_longer(cols = Canopy1_VWC:Btwn2_PER, names_to = "Reading", values_to = "Value") |> 
+  separate(Reading, into = c("Location", "Units"), sep = "_") |> 
+  separate(Location, into = c("Location", "Rep"), sep = "(?<=[A-Za-z])(?=[0-9])") |> 
+  
+  mutate(
+    Value = as.numeric(Value)
+  )
+  
+
+
+Moisture_w2019 <- Moisture_w2019_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+  
+  # rename columns
+  rename(
+    SpeciesCode = `Plant Species`,
+    TagNum = `Tag Number`
+  ) |> 
+  
+    #date column
+    mutate(
+      Date = mdy(Date)
+    ) |> 
+  pivot_longer(cols = Canopy1_VWC:Btwn2_PER, names_to = "Reading", values_to = "Value") |> 
+  separate(Reading, into = c("Location", "Units"), sep = "_") |> 
+  separate(Location, into = c("Location", "Rep"), sep = "(?<=[A-Za-z])(?=[0-9])") |> 
+  
+  mutate(
+    Value = as.numeric(Value)
+  )
+
+
+Moisture_raw <- bind_rows(Moisture_f2018, Moisture_w2019) |> 
+  mutate(
+    Treatment = factor(Treatment),
+    Direction = case_when(
+      Direction == "left" ~ "Left",
+      Direction == "right" ~ "Right",
+      TRUE ~ Direction
+    )
+  ) 
+
+Moisture <- Moisture_raw |> pivot_wider(names_from = Units, values_from = Value) |> 
+  group_by(Date, Block, Treatment, Direction, SpeciesCode, TagNum, Location) |> 
+  summarize(
+    VWC = mean(VWC),
+    PER = mean(PER)
+  )
+
+```
+
+#### Visualize
+
+```{r}
+Moisture |> 
+  filter(Location == "Canopy") |> 
+  ggplot() + 
+  aes(x = Date, y = VWC, group = TagNum) + 
+  geom_point() + 
+  geom_line() + 
+  facet_wrap(Treatment~SpeciesCode)
+```
+
+
+```{r}
+Moisture |> 
+  filter(Location == "Btwn") |> 
+  ggplot() + 
+  aes(x = Date, y = VWC, group = TagNum) + 
+  geom_point() + 
+  geom_line() + 
+  facet_wrap(Treatment~SpeciesCode)
+```
+
+
+```{r}
+MoistureChange <- Moisture |> 
+  filter(Location == "Canopy") |> 
+  select(-PER, -Direction) |> 
+  pivot_wider(names_from = Date, values_from = VWC) |> 
+  mutate(delVWC = `2019-02-20`-`2018-10-17`)
+
+MoistureChange |> 
+  ggplot(aes(x = SpeciesCode, y = delVWC)) + 
+  geom_point() +
+  facet_wrap(Treatment~., scales = "free_x")
+
+MoistureChange |> 
+  ggplot(aes(x = SpeciesCode, y = delVWC, fill = SpeciesCode)) + 
+  geom_hline(aes(yintercept = 0), cex = 1, linetype = "dashed") +
+  geom_boxplot() +
+  facet_wrap(Treatment~., scales = "free_x") +
+  labs(y = "Change in VWC, February - October")
+```
+
+
+### Carbon Flux
+
+#### Import
+```{r}
+CFlux_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1pX-C5Ub1A7TbnC39WEoqwvygwOKWg3JesP6LB9Jk4gc/edit#gid=828566058", sheet = 1, col_types = "c")
+
+CFlux_post2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1AhHlZyz5bzEY2R3wJFc0CgRT4pJMHLj1zrrzshr95yk/edit#gid=937107603", sheet = 1, col_types = "c", col_names = FALSE)
+
+CFlux_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1_oOgkCH0kuETcy8uIHuHemj6r89BbEduxk6xcP6jKDs/edit#gid=966604967", sheet = 1, col_types = "c", col_names = FALSE)
+
+
+```
+#### Tidy
+```{r}
+CFlux_pre2018_raw |> names()
+CFlux_pre2018_raw$`...9` |>  unique()
+
+CFlux_pre2018 <- CFlux_pre2018_raw |> 
+  #rename columns
+  rename(
+    TurfTmt = Turf,
+    Cycle_Type = `Cycle Type`,
+    Time_sec = `Time (sec)`,
+    CO2_ppm = `CO2 (ppm)`,
+    Notes = `...9`
+  ) |> 
+  mutate(
+    Date = mdy(Date),
+    across(Time_sec:CO2_ppm, as.numeric),
+    Treatment = factor(Treatment))
+```
+
+```{r}
+CFlux_post2018 <- CFlux_post2018_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+
+  #rename columns
+  rename(
+    Cycle_Type = `Cycle Type`,
+    Time_sec = `Time (sec)`,
+    CO2_ppm = `CO2 (ppm)`
+  ) |> 
+  mutate(
+    Date = mdy(Date),
+    across(Time_sec:CO2_ppm, as.numeric),
+    Treatment = factor(Treatment))
+
+```
+
+```{r}
+CFlux_w2019 <- CFlux_w2019_raw |> 
+  # Get rid of row 2 and make Row 1 column names
+  janitor::row_to_names(1) |> 
+  slice(-1) |>
+
+  #rename columns
+  rename(
+    Cycle_Type = `Cycle Type`,
+    Time_sec = `Time (sec)`,
+    CO2_ppm = `CO2 (ppm)`
+  ) |> 
+  mutate(
+    Date = mdy(Date),
+    across(Time_sec:CO2_ppm, as.numeric),
+    Treatment = factor(Treatment))
+
+CFlux_raw <- bind_rows(CFlux_pre2018, CFlux_post2018, CFlux_w2019) |> 
+  # make notes apply to all Time_sec of a particular observation for sorting
+  group_by(Date, TurfTmt, Treatment, Quad, Cycle_Type) |> 
+  fill(Notes) |> 
+  # Fix spellings, code for possible exclusion categories
+  mutate(
+    Treatment = case_when(
+      Treatment == "Non-Native" ~ "NonNative",
+      TRUE ~ Treatment
+    ),
+    Shade = case_when(
+      str_detect(Notes, "partial") == TRUE~ "Partial shade",
+      str_detect(Notes, "Partial") == TRUE ~ "Partial shade",
+      str_detect(Notes, "shade") == TRUE ~ "Shade",
+      str_detect(Notes, "Shade") == TRUE ~ "Shade",
+      TRUE ~ "Not shaded"
+    ),
+    PoorSeal = case_when(
+      str_detect(Notes, "seal") == TRUE ~ "1",
+      TRUE ~ "0"
+    ),
+    NoVeg = case_when(
+      str_detect(Notes, "no veg") == TRUE ~ 1,
+      str_detect(Notes, "No veg") == TRUE ~ 1,
+      str_detect(Notes, "No Plants") == TRUE ~ 1,
+    ),
+    Quad = case_when(
+      Quad == "Control; sunny, grassy area in front of BC Cavern (next to well plate in aldrich)" ~ "Turf Control", 
+      TRUE ~ Quad
+    )
+  )
+
+#OddNotes <- CFlux_raw |> count(Notes) |> filter(n/24 != round(n/24))
+
+#FilledNotes <- CFlux_raw |> group_by(Date, TurfTmt, Treatment, Quad, Cycle_Type) |> fill(Notes) #|> count(Notes) |> filter(n/24 != round(n/24))
+
+# In shade/clouds has only 23; missing one point? whatever man
+
+CFlux_raw$Quad |> unique()
+CFlux_raw$Treatment |> unique()
+CFlux_raw |> filter(Treatment == "Control (no planting)")
+
+CFlux <- CFlux_raw |> 
+  filter(CO2_ppm < 650 & CO2_ppm > 200) |> 
+  group_by(Date, TurfTmt, Treatment, Quad, Cycle_Type) |> 
+  summarize(
+    CO2flux_linear = (summary(lm(CO2_ppm ~ Time_sec))$coefficients[2,1])
+    #CO2flux_exp = coef(lm(log(CO2_ppm) ~ Time_sec ))[2]
+  ) |> 
+  ungroup() |> 
+  pivot_wider(names_from = Cycle_Type, values_from = CO2flux_linear) |> 
+  mutate(netFlux = Light - Dark)
+
+View(CFlux)
+
+summary(lm(log(CO2_ppm) ~ Time_sec , data = CFlux_raw))$coefficients[2,1]
+```
+
+#### Visualize
+
+```{r}
+CFlux |> 
+  ggplot(aes(x = Date, y = netFlux, group = Quad, color = TurfTmt)) + 
+  geom_point() + 
+  geom_line() + 
+  geom_hline(aes(yintercept = 0), linetype = "dashed") + 
+  facet_grid(. ~ Treatment) + 
+  labs(y = "Light - Dark") +
+   # annotate(geom = "text", x = as.Date("2018-10-05"), y = 0.002, label = "CO2 Emission")+
+  annotate(geom = "text", x = as.Date("2018-10-05"), y = -1.5, label = "More negative = More CO2 uptake \ndue to photosynthesis", cex = 2)
+
+fluxtext <- tibble(fluxtext = c("Emitting CO2", "Taking up CO2"),
+x = c(1, -1),
+y = c(0, 0))
+CFlux |> 
+  ggplot() +
+  geom_point(aes(x = Date, y = CO2flux_exp, group = Quad, color = Shade)) + 
+  geom_line(aes(x = Date, y = CO2flux_exp, group = Quad, color = Shade)) + 
+  geom_hline(aes(yintercept = 0), linetype = "dashed") + 
+  facet_grid(Cycle_Type ~ Treatment) +
+  annotate(geom = "text", x = as.Date("2018-10-05"), y = 0.002, label = "CO2 Emission")+
+  annotate(geom = "text", x = as.Date("2018-10-05"), y = -0.002, label = "CO2 Reduction")
+
+```
+
