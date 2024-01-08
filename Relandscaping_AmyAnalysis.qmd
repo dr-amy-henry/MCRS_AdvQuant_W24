@@ -16,6 +16,7 @@ library(googlesheets4)
 ### Vacuum
 
 #### Import
+
 ```{r}
 Vacuum_data_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1SoHujYHb3jshu-h4ul7Ve6oQmSx-uFdD6yMwhwvMfRg/edit#gid=1857926111", sheet = 2, skip = 1, col_types = "c")
 
@@ -23,6 +24,7 @@ Vacuum_metadata_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1GkecY
 ```
 
 #### Tidy
+
 ```{r}
 Vacuum_metadata <- Vacuum_metadata_raw |> 
   slice(-1) |> 
@@ -71,6 +73,7 @@ Vacuum_test <- Vacuum_data |>
 ```
 
 Legacy code - assessing why we can't match the collection dates over
+
 ```{r}
 Vacuum_data$SampleID |> unique()
 
@@ -92,6 +95,7 @@ unique(Vacuum_data$SampleID)
 ```
 
 #### Visualize
+
 ```{r}
 
 # Species Richness per sample
@@ -112,7 +116,6 @@ Vacuum_SpRich |> ggplot() +
   facet_grid(Year~Treatment, scales = "free")
 ```
 
-
 ### Pitfall
 
 MISSING???
@@ -122,6 +125,7 @@ MISSING???
 ### Quadrat
 
 #### Import
+
 ```{r}
 Quads_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1pm9Anwi05_4zlfiAcOGONzFudASnPW6QmV69r2y3H3E/edit#gid=1657154286", sheet = 1, col_types = "c")
 
@@ -133,6 +137,7 @@ Quads_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/140_CToBFV
 ```
 
 #### Tidy
+
 ```{r}
 Quads_pre2018 <- Quads_pre2018_raw |> 
   # rename columns to be tidy
@@ -206,6 +211,7 @@ Quads_Reland <- Quads_Reland |>
 ```
 
 #### Visualize
+
 ```{r}
 Quads_Reland |>  
   #filter(SpeciesCode != "CYNDAC") |> 
@@ -215,7 +221,9 @@ Quads_Reland |>
     facet_wrap(Treatment ~ Date, scales = "free")
 
 ```
+
 ##### NMDS
+
 ```{r}
 library(vegan)
 Quads_Reland_temp <- Quads_Reland |> 
@@ -242,13 +250,11 @@ stressplot(Quad_nmds)
 plot(Quad_nmds)
 ```
 
-
 ```{r}
 ordiplot(Quad_nmds,type="n")
 orditorp(Quad_nmds,display="species",col="red",air=0.01)
 orditorp(Quad_nmds,display="sites",cex=1.25,air=0.01)
 ```
-
 
 ```{r}
 
@@ -260,13 +266,12 @@ ggplot(Quad_mds_index) +
   geom_point()
 ```
 
-
-
 ### Transect
 
 #### Transects
 
 #### Import
+
 ```{r}
 Transect_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1cJkfj5r5etqoMFNwmRLJAKpfPJ1k0RsPw-jTzTPVIDQ/edit#gid=1819324223", sheet = 2, trim_ws = TRUE, col_types = "c")
 
@@ -276,6 +281,7 @@ Transect_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1b7diSJ
 ```
 
 #### Tidy
+
 ```{r}
 Transect_pre2018 <- Transect_pre2018_raw |> 
   # rename tidy columns
@@ -339,11 +345,6 @@ Transects_raw <- bind_rows(Transect_pre2018, Transect_post2018, Transect_w2019)
 ```
 
 ```{r}
-Transects$SpeciesCode |> unique() 
-
-Transects$TransectID |> unique() 
-
-Transects |> filter(SpeciesCode == "RO")
 
 Transects <- Transects_raw |> 
   mutate(
@@ -371,11 +372,12 @@ Transects <- Transects_raw |>
 ```
 
 #### Visualize
+
 ```{r}
 TotalPoints <- Transects |> group_by(Date, TransectID) |> 
   summarize(TotalPoints = max(Distance))
 
-Transects |> View()
+#Transects |> View()
 
 Transects |> filter(TurfTmt == "Turf" & str_detect(TransectID, "No Turf") == TRUE)
 Transects |> filter(TurfTmt == "No Turf" & str_detect(TransectID, "No Turf") == FALSE)
@@ -406,6 +408,7 @@ Transects |>
              ) +
   labs(y = "Percent Cover")
 ```
+
 ```{r}
 Transects |> 
   filter(Type == "Ground") |> 
@@ -430,10 +433,10 @@ Transects |>
   labs(y = "Percent Cover")
 ```
 
-
 ### Veg Heights
 
 #### Import
+
 ```{r}
 VH_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1cJkfj5r5etqoMFNwmRLJAKpfPJ1k0RsPw-jTzTPVIDQ/edit#gid=1819324223", sheet = 3, col_types = "c")
 
@@ -443,6 +446,7 @@ VH_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1b7diSJNoQktP
 ```
 
 #### Tidy
+
 ```{r}
 VH_pre2018 <- VH_pre2018_raw |> 
   # rename columns
@@ -529,8 +533,8 @@ VegHeights |> group_by(TransectID, Date) |> summarize(TotalPoints = max(Distance
   
 ```
 
-
 #### Visualize
+
 ```{r}
 VegHeights |> 
   ggplot(aes(x = factor(Date), y = Height_cm, color = FuncGroup, shape = SiteID)) +
@@ -546,6 +550,7 @@ VegHeights |>
 ### Size
 
 #### Import
+
 ```{r}
 PlantSize_fall2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1eSBq2KwwmPo6fzuMwkwwsGebJRtAeneR_V6egStgxJE/edit#gid=1316672863", sheet = 1, col_names = FALSE, col_types = "c")
 
@@ -553,6 +558,7 @@ PlantSize_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1LGoll
 ```
 
 #### Tidy
+
 ```{r}
 PlantSize_fall2018 <- PlantSize_fall2018_raw |> 
   # Get rid of row 2 and make Row 1 column names
@@ -605,7 +611,9 @@ PlantSizes <- PlantSizes_raw |>
 PlantSizes |> select(SpeciesCode,Treatment) |> unique() # looks good actually
 
 ```
+
 #### Visualize
+
 ```{r}
 PlantSizes |> 
   mutate(
@@ -630,10 +638,10 @@ PlantSizes |>
   labs(y = "Percent change in volume", x = "Species", caption = "Errorbars represent standard error. Volume change is measured from planting in October 2018 to February 2019.")
 ```
 
-
 ### Stomatal Conductance
 
 #### Import
+
 ```{r}
 StomCon_fall2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1clAYyH0d4fvitP89qQpXOEjmCi1oHxud9FObE-T3QJI/edit#gid=654224388", sheet = 1, col_names = FALSE, col_types = "c")
 
@@ -641,6 +649,7 @@ StomCon_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1sKABOJs
 ```
 
 #### Tidy
+
 ```{r}
 StomCon_fall2018 <- StomCon_fall2018_raw |> 
   # Get rid of row 2 and make Row 1 column names
@@ -700,7 +709,9 @@ StomCon_change <- StomCon |>
   pivot_wider(names_from = Date, values_from = StomCon)
 
 ```
+
 #### Visualize
+
 ```{r}
 StomCon |> ggplot() +
     aes(x = factor(Year), y = StomCon, fill = SpeciesCode) +
@@ -727,6 +738,7 @@ StomCon |> ggplot() +
   facet_wrap(Treatment ~ SpeciesCode) 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "none")
 ```
+
 #### Analysis
 
 ```{r}
@@ -742,6 +754,7 @@ summary(StomCon_model)
 ### Soil Moisture
 
 #### Import
+
 ```{r}
 Moisture_f2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1UiNiVcDzX2-pz8F5pj0vyiHwafNnanz_wvl5dRuX-KM/edit#gid=294630557", sheet = 1, col_names = FALSE, col_types = "c")
 
@@ -753,6 +766,7 @@ Moisture_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1_7iSBo
 ```
 
 #### Tidy
+
 ```{r}
 Moisture_f2018 <- Moisture_f2018_raw |> 
   # Get rid of row 2 and make Row 1 column names
@@ -834,7 +848,6 @@ Moisture |>
   facet_wrap(Treatment~SpeciesCode)
 ```
 
-
 ```{r}
 Moisture |> 
   filter(Location == "Btwn") |> 
@@ -844,7 +857,6 @@ Moisture |>
   geom_line() + 
   facet_wrap(Treatment~SpeciesCode)
 ```
-
 
 ```{r}
 MoistureChange <- Moisture |> 
@@ -866,10 +878,10 @@ MoistureChange |>
   labs(y = "Change in VWC, February - October")
 ```
 
-
 ### Carbon Flux
 
 #### Import
+
 ```{r}
 CFlux_pre2018_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1pX-C5Ub1A7TbnC39WEoqwvygwOKWg3JesP6LB9Jk4gc/edit#gid=828566058", sheet = 1, col_types = "c")
 
@@ -879,7 +891,9 @@ CFlux_w2019_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1_oOgkCH0k
 
 
 ```
+
 #### Tidy
+
 ```{r}
 CFlux_pre2018_raw |> names()
 CFlux_pre2018_raw$`...9` |>  unique()
@@ -988,7 +1002,7 @@ CFlux <- CFlux_raw |>
   pivot_wider(names_from = Cycle_Type, values_from = CO2flux_linear) |> 
   mutate(netFlux = Light - Dark)
 
-View(CFlux)
+#View(CFlux)
 
 summary(lm(log(CO2_ppm) ~ Time_sec , data = CFlux_raw))$coefficients[2,1]
 ```
@@ -1019,4 +1033,3 @@ CFlux |>
   annotate(geom = "text", x = as.Date("2018-10-05"), y = -0.002, label = "CO2 Reduction")
 
 ```
-
