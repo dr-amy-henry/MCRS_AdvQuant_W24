@@ -52,13 +52,19 @@ Bind your cleaned data frames together into one object. Clean up any remaining c
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Identifier columns
+#### Issue #1: 
 
 ```{r}
 
 ```
 
-#### Data columns
+#### Issue #2: 
+
+```{r}
+
+```
+
+etc.
 
 ```{r}
 
