@@ -8,12 +8,9 @@ This is a document to see how Git Push, Pull, and Merge works.
 
 Add your name to the document below. Only add your own name, not your teammates' names.
 
-<<<<<<< HEAD
+ 
 1.  First name alphabetically
 2.  Janet
 3.  HELP
-=======
-1.  Cherry!
-2.  next name alphabetically
->>>>>>> ebc22f6cd91920968484e61e17d2dbe937ae3ab8
-3.  etc.
+4.  how does this look
+
