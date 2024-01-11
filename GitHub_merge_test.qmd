@@ -11,6 +11,7 @@ Add your name to the document below. Only add your own name, not your teammates'
 <<<<<<< HEAD
 1.  First name alphabetically
 2.  Janet
+3.  HELP
 =======
 1.  Cherry!
 2.  next name alphabetically
