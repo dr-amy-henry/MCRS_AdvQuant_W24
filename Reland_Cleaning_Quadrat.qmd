@@ -8,20 +8,28 @@ editor: visual
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #:
+Team #: 2
 
 Team Members:
 
 ### Load Packages
 
 ```{r}
-
+library(tidyverse)
+library(ggplot2)
+library(readr)
 ```
 
 ### Import Data Files
 
 ```{r}
-
+Quad_2.19 <- read_excel("Quad_Winter 2019 GH Relandscaping Quadrat Data.xls", 
+             sheet = "Sheet 1", 
+             # col_names = FALSE # which you choose depends on if you have only one row of column names in your excel document
+             # col_names = TRUE,
+             # col_types = TRUE, # default, R will guess what format your columns are (numeric, character, etc.)
+             # col_types = "text" # this will make Excel import all columns as character, which can be useful if it doesn't do a good job interpolating formats. 
+             )
 ```
 
 ### Create Primary
