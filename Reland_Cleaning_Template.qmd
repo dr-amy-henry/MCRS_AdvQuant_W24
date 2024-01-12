@@ -4,17 +4,21 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: FILL IN YOUR VARIABLE HERE
+## Relandscaping Data Cleaning: Soil Moisture
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #:
+Team #: 3
 
 Team Members:
 
 ### Load Packages
 
 ```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(lubridate)
 
 ```
 
@@ -22,43 +26,40 @@ Team Members:
 
 ```{r}
 
+MoistS19 <- read_excel("RelandscapingData/Moist_ Spring 2019 GH Relandscaping Soil Moisture Data.xlsx", col_types = "c")
+view(Moist19)
+## No 2019 data
+
+Moist18 <- read_excel("RelandscapingData/Moist_Fall 2018 GH Relandscaping Soil Moisture Data.xlsx", col_types = "text") %>% slice(-1)
+view(Moist18)
+
+Moist19<- read_excel("RelandscapingData/Moist_Winter 2019 GH Relandscaping Soil Moisture Data.xlsx", col_types ="text") %>% slice(-1)
+view(Moist19)
+
 ```
 
 ### Create Primary
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Fall 2018 data (example)
-
-```{r}
-
-```
-
-#### Data Frame #2: fill in and add as needed
-
-```{r}
-
-```
-
 #### Complete Raw Data
 
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
+Moist <- bind_rows(Moist18, Moist19)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1: 
+#### Issue #1:
 
 ```{r}
-
 ```
 
-#### Issue #2: 
+#### Issue #2:
 
 ```{r}
 
@@ -70,7 +71,7 @@ etc.
 
 ```
 
-### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar. 
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
 
