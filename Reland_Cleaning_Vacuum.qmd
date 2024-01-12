@@ -15,12 +15,19 @@ Team Members:
 ### Load Packages
 
 ```{r}
+library('tidyverse')
+library(readxl)
 
 ```
 
 ### Import Data Files
 
 ```{r}
+Vacuum_Arthropods_RAW <- read_excel("RelandscapingData/Vacuum_‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏collect_data_arthropods_2019_7.12.21.xlsx", 
+    sheet = "DATA", skip = 1)
+
+Vacuum_Sampling_RAW <- read_excel("RelandscapingData/Vacuum Sampling Data.xlsx", 
+    sheet = "Sheet1")
 
 ```
 
@@ -28,9 +35,11 @@ Team Members:
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Fall 2018 data (example)
+#### Data Frame #1: Changing dashes to underscores in sample name 
 
 ```{r}
+Vacuum_Arthropods <- Vacuum_Arthropods_RAW |>
+  mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_'))
 
 ```
 
@@ -52,9 +61,10 @@ Bind your cleaned data frames together into one object. Clean up any remaining c
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: 
 
 ```{r}
+
 
 ```
 

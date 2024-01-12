@@ -52,13 +52,13 @@ Bind your cleaned data frames together into one object. Clean up any remaining c
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: 
 
 ```{r}
 
 ```
 
-#### Issue #2:
+#### Issue #2: 
 
 ```{r}
 
@@ -70,7 +70,7 @@ etc.
 
 ```
 
-### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar. 
 
 ```{r}
 
