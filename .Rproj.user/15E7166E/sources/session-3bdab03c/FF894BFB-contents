@@ -1,0 +1,411 @@
+---
+title: "LomaShrubData"
+author: "Cherry Berry"
+format: html
+editor: visual
+csl: norsk-apa-manual-note.csl
+---
+
+## Loma EDA
+
+First, load all relevant files.
+
+```{r}
+library(grateful)
+library(lme4)
+library(tidyverse)
+library(googlesheets4)
+library(readxl)
+library(cAIC4)
+library(MuMIn)
+library(lmerTest)
+library(sjPlot)
+library(scales)
+```
+
+```{r}
+SPAD_data_raw <- read_sheet(
+  'https://docs.google.com/spreadsheets/d/1YG_zcmjW9GTsRO3F5uoHUkSOkP4dfqO1qR4GwOQJyaA/edit#gid=346809541', 
+  sheet = 3) 
+
+shrub_raw_data <- read_sheet(
+  'https://docs.google.com/spreadsheets/d/1YG_zcmjW9GTsRO3F5uoHUkSOkP4dfqO1qR4GwOQJyaA/edit#gid=346809541', 
+  sheet = 4)
+
+exp_blocks <- read_excel("LRGCE_ExperimentalBlocks.xlsx")
+
+SPAD_raw <- read_csv(file = "SPAD_LA_DW_data.csv")
+
+```
+
+```{r}
+exp_blocks <- exp_blocks |>
+  rename(PlotNames = `Plot Names`)
+```
+
+## SHRUB DATAAAAAAAAAAAAAA
+
+```{r}
+shrub_data <- shrub_raw_data |>
+  filter(Team != "Mickey, Minnie") |>
+  mutate(Tag_Num = as.character(Tag_Num)) |>
+  mutate(Shrub_Height_cm = str_replace(Shrub_Height_cm, '\\>', '')) |>
+  mutate(Shrub_Height_cm = as.numeric(Shrub_Height_cm)) |>
+  mutate(Tag_Num = as.numeric(Tag_Num)) |>
+  select(Plot_Num, Tmt_Code, Tag_Num, Species, Crown_Sprouting, Shrub_Height_cm) |>
+  mutate(PlotNames = paste("S", Plot_Num, Tmt_Code, sep = "")) |>
+  left_join(exp_blocks) |>
+  separate(PlotNames, into = c("drop", "Habitat", "Num1", "Num2", "Left/Right", "Water", "Nitrogen"), sep = "") |>
+  mutate(
+    Water_Treatment = case_when(
+      Water == "R" ~ "Drought",
+      Water == "X" ~ "Ambient"),
+    N_Treatment = case_when(
+      Nitrogen == "X" ~ "Ambient",
+      Nitrogen == "N" ~ "Addition")) |>
+  select(Plot_Num, Tag_Num, Water_Treatment, N_Treatment, Block, Species, Crown_Sprouting, Shrub_Height_cm)
+  
+shrub_data
+```
+
+## SPAD Data!!!
+
+```{r}
+SPAD_filled_tags <- SPAD_data_raw |> filter(is.na(Tag_Num) == TRUE) |>  mutate(Tag_Num = rep(101:115, each = 5))
+
+SPAD_data <- SPAD_data_raw |> 
+  filter(is.na(Tag_Num) == FALSE) |> 
+  bind_rows(SPAD_filled_tags) |>   
+  filter(Team != "Mickey, Minnie") |> 
+  select(Plot_Num, Tmt_Code, Tag_Num, Species, Crown_Sprouting, Leaf_Num, SPAD) |> 
+  mutate(PlotNames = paste("S", Plot_Num, Tmt_Code, sep = "")) |> 
+  left_join(exp_blocks) |> 
+  separate(PlotNames, into  = c("drop", "Habitat","Num1", "Num2", "Left/Right", "Water", "Nitrogen"), sep = "") |> 
+  mutate(
+    Water_Treatment = case_when(
+      Water == "R" ~ "Drought", 
+      Water == "X" ~ "Ambient"),
+    N_Treatment = case_when(
+      Nitrogen == "X" ~ "Ambient", 
+      Nitrogen == "N" ~ "Addition"))|>
+    filter(N_Treatment == "Ambient") |> 
+  
+
+  select(Plot_Num, Tag_Num, Water_Treatment, N_Treatment, Block, Species, Crown_Sprouting, Leaf_Num, SPAD)
+
+```
+
+## spad averages (spaverages)
+
+Averaging SPAD values by tag number.
+
+```{r}
+SPAverage <- SPAD_data |>
+  group_by(Tag_Num, Species, Plot_Num, ) |>
+  summarize(maverage = mean(SPAD))
+
+SPAverage
+```
+
+```{r}
+#Replace all NA values in "chr" columns with "No"
+#this is literally useless
+shrub_data$Crown_Sprouting <- shrub_data$Crown_Sprouting %>% replace_na('No')
+SPAD_data$Crown_Sprouting <- SPAD_data$Crown_Sprouting %>% replace_na('No')
+```
+
+# Summary Statistics Tables + Figures
+
+## Summary Statistics Tables !!!
+
+#### Mean Shrub Height
+
+```{r}
+#summary statistics table, mean shrub height
+mean_shrub_height<- shrub_data |>
+  group_by(Species) |>
+  summarize(mean_height = mean(Shrub_Height_cm),
+            sd_height = sd(Shrub_Height_cm),
+            count_of = n(),
+            se_height = sd_height/sqrt(count_of)) |>
+  mutate_at(vars(mean_height, sd_height),
+            .funs = round, 2)
+
+mean_shrub_height
+knitr::kable(mean_shrub_height)
+```
+
+#### Mean Water Treatment
+
+```{r}
+#summary statistics table, water treatment
+water_shrub_height<- shrub_data |>
+  group_by(Species, Water_Treatment) |>
+  summarize(mean_wtr_height = mean(Shrub_Height_cm),
+            sd_wtr_height = sd(Shrub_Height_cm),
+            count_of_wtr = n(),
+            se_wtr_height = sd_wtr_height/sqrt(count_of_wtr)) |>
+  mutate_at(vars(mean_wtr_height, sd_wtr_height),
+            .funs = round, 2)
+
+water_shrub_height
+knitr::kable(water_shrub_height)
+```
+
+#### Mean Nitrogen Treatment
+
+```{r}
+#summary statistics table, nitrogen treatment
+nitrogen_shrub_height<- shrub_data |>
+  group_by(Species, N_Treatment) |>
+  summarize(mean_nitrogen_height = mean(Shrub_Height_cm),
+            sd_nitrogen_height = sd(Shrub_Height_cm),
+            count_of_nitrogen = n(),
+            se_nitrogen_height = sd_nitrogen_height/sqrt(count_of_nitrogen)) |>
+  mutate_at(vars(mean_nitrogen_height, sd_nitrogen_height),
+            .funs = round, 2)
+
+nitrogen_shrub_height
+knitr::kable(nitrogen_shrub_height)
+```
+
+#### By Block and Water Treatment
+
+```{r}
+#summary statistics, grouped by block group and then species
+plot_means<- shrub_data |>
+  group_by(Plot_Num, Species, Water_Treatment) |>
+  summarize(plot_mean = mean(Shrub_Height_cm),
+            sd_plot = sd(Shrub_Height_cm),
+            count_in_plots = n(),
+            se_plot = sd_plot/sqrt(count_in_plots)) |>
+  mutate_at(vars(plot_mean, sd_plot),
+            .funs = round, 2)
+
+plot_means
+knitr::kable(plot_means)
+```
+
+## Figures of summary tables
+
+```{r}
+#plant height by species
+mean_shrub_height |>
+ggplot() +
+  aes(x = Species, y = mean_height, fill = Species) +
+  geom_col(position = position_dodge()) +
+  geom_errorbar(aes(ymin = mean_height - se_height,
+                    ymax = mean_height + se_height),
+                position = position_dodge(0.9),
+                width = 0.1)
+
+#box plot of shrub height by water treatment, differentiated by species
+ggplot(shrub_data) +
+  aes(x = Water_Treatment, y = Shrub_Height_cm, fill = Species) +
+  geom_boxplot()
+
+#box plot of shrubt height by nitrogen treatment, differentiated by species
+ggplot(shrub_data) +
+  aes(x = N_Treatment, y = Shrub_Height_cm, fill = Species) +
+  geom_boxplot()
+
+#IT JUST WORKS : ' )  - todd howard probably
+```
+
+## Separating data by species
+
+```{r}
+#separating shrub data by species!
+
+#contains only mallau data
+mallau_data <- shrub_data |>
+  select(Plot_Num, Tag_Num, Water_Treatment, N_Treatment, Block, Species, Crown_Sprouting, Shrub_Height_cm) |>
+  filter(Species == "MALLAU")
+
+#contains only salmel data
+salmel_data <- shrub_data |>
+  select(Plot_Num, Tag_Num, Water_Treatment, N_Treatment, Block, Species, Crown_Sprouting, Shrub_Height_cm) |>
+  filter(Species == "SALMEL")
+
+
+mallau_data
+salmel_data
+```
+
+# Part 1 Analysis UHHHNOVA (Indv. Hypothesis)
+
+Key:
+
+maverage = averaged SPAD values by tag number (I misspelled the name when I was creating it and I kept it I guess)
+
+### T-tests
+
+```{r}
+#t-test, shrub height as a function of water treatment
+
+t.test(Shrub_Height_cm ~ Water_Treatment, data = mallau_data)
+
+model_1 <- aov(Shrub_Height_cm ~ Water_Treatment, data = mallau_data)
+
+residuals <- residuals(model_1)
+
+hist(residuals)
+```
+
+### Linear model, plotted residuals and Q-Q plots, normality test
+
+```{r}
+#linear model creation
+loma_model <- lm(Shrub_Height_cm ~ Water_Treatment, data = mallau_data)
+
+#normie test
+shapiro.test(residuals)
+
+#residuals, Q-Q plots
+plot(loma_model, which = 1)
+plot(loma_model, which = 2)
+```
+
+### Test for homogeneity of variance
+
+```{r}
+var.test(Shrub_Height_cm ~ Water_Treatment, data = mallau_data)
+
+#p-value is very high
+```
+
+### Figures
+
+```{r}
+#redoing summary table to exclude SALMEL
+mallau_figures <- mallau_data |>
+  group_by(Species, Water_Treatment) |>
+  summarize(mean_mallau = mean(Shrub_Height_cm),
+            sd_mallau_height = sd(Shrub_Height_cm),
+            count_of_mall = n(),
+            se_mallau_height = sd_mallau_height/sqrt(count_of_mall)) |>
+  mutate_at(vars(mean_mallau, sd_mallau_height),
+            .funs = round, 2)
+
+mallau_figures
+knitr::kable(mallau_figures)
+```
+
+```{r}
+#############   graphing summary table   #############
+mallau_figures |>
+ggplot() +
+  aes(x = Water_Treatment, y = mean_mallau, fill = Water_Treatment) +
+  geom_col(position = position_dodge(), width = 0.5) +
+  geom_errorbar(aes(ymin = mean_mallau - se_mallau_height,
+                    ymax = mean_mallau + se_mallau_height),
+                position = position_dodge(1),
+                width = 0.1) +
+  scale_fill_manual(values = c("cornflowerblue", "darkkhaki")) +
+  labs(title = NULL, x = NULL, y = NULL, fill = NULL) +
+  xlab("Water Treatment") +
+  ylab("Mean Height (cm)") +
+  theme(legend.position = "none")
+```
+
+# Part 2 Group Question Analysis (There is a gas leak in my home)
+
+### Pre-processing to combine SPAD and height data
+
+Key:
+
+Spite = combined dataframe containing SPAD values averaged by tag number and shrub height data
+
+```{r}
+Spite <- SPAverage |>
+  inner_join(shrub_data, multiple = "all") |>
+  select(Plot_Num, Tag_Num, maverage, Block, Species, Shrub_Height_cm) |>
+  filter(Species == "MALLAU")
+
+
+Spite
+```
+
+### ANOVA
+
+```{r}
+#ANOVA of combined data I guess
+aov(Shrub_Height_cm ~ maverage, data = Spite)
+```
+
+# LMER
+
+```{r}
+#####accounting for random effects, a whole slew of models testing different random effects and interactions
+
+
+#lmer_model <- lmer(maverage ~ Shrub_Height_cm + (1|Block), data = Spite)
+
+#lmer_model2 <- lmer(maverage ~ Shrub_Height_cm + Species + (1|Block), data = Spite)
+
+#lmer_model3 <- lmer(maverage ~ Shrub_Height_cm * Species + (1|Block), data = Spite)
+
+#lmer_model4 <- lmer(Shrub_Height_cm ~ maverage + (1|Block), data = Spite)
+
+lmer_model6 <- lmer(Shrub_Height_cm ~ maverage + (1|Block), data = Spite)
+
+lmer_model5 <- lmer(Shrub_Height_cm ~ maverage + (1|Block), data = Spite)
+
+
+
+#models 5 and 6 have significant p-values. however, the interaction is not significant in model 5.
+summary(lmer_model6)
+summary(lmer_model5)
+```
+
+### Comparison of LMER models (can i get a whoop whoop)
+
+```{r}
+cAIC(lmer_model5)
+cAIC(lmer_model6)
+
+###### model 5 is the best fit model because the interaction between SALMEL and SPAD average is insignificant.
+```
+
+### LMER Outputs!!!!
+
+```{r}
+
+#reporting the r squared value of the LMER model
+
+r.squaredGLMM(lmer_model6)
+
+
+summary(lmer_model6)
+
+
+plot(lmer_model6, which = 1)
+
+
+#QQplot
+ggpubr::ggqqplot(residuals(lmer_model6))
+##QQ plot results mostly fell within the gray area when accounting for random effects
+```
+
+## Figured you'd say that 😏 (get it)
+
+```{r}
+#does not account for random effects
+ggplt <- ggplot(aes(x = maverage, y = Shrub_Height_cm, color = Species, shape = Species), data = Spite) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  labs(x = "Chlorophyll", y = "Shrub Height") +
+  scale_color_brewer(palette = "Set2") +
+  theme(legend.position = "none")
+ggplt
+```
+
+```{r}
+summary(lmer_model6)
+
+plot_model(lmer_model6) + geom_hline(aes(yintercept = 0), linetype = "dotted")
+```
+
+```{r}
+cite_packages(out.dir = getwd(), out.format = "docx", pkgs = "Session", cite.tidyverse = TRUE, include.RStudio = TRUE)
+```
