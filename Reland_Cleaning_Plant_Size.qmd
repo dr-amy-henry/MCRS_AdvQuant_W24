@@ -1,5 +1,5 @@
 ---
-title: "Relandscaping Cleaning Template"
+title: "Relandscaping Cleaning Plant Size"
 format: html
 editor: visual
 ---
@@ -10,18 +10,26 @@ Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
 Team #:
 
-Team Members:
+Team Members: Sully, Erin, Tom, Audrey
 
 ### Load Packages
 
-```{r}
+```{r # install.packages(tidyverse)}
+library(tidyverse)
 
 ```
 
 ### Import Data Files
 
 ```{r}
+library(readxl)
+columns <- c("Date", "Treatment","Block", "Observers", "Plant_Species", "Tag_Number", "Height_cm", "Width_cm", "Length_cm", "Notes"  )
+Size_Fall_2018 <- read_excel("RelandscapingData/Size_Fall 2018 GH Relandscaping Plant Size Data.xlsx", 
+    col_names = columns, skip = 2)
+View(Size_Fall_2018)
 
+Size_Winter_2019 <- read_excel("RelandscapingData/Size_Winter 2019 GH Relandscaping Plant Size Data.xlsx",  col_names = columns, skip = 2)
+View(Size_Winter_2019)
 ```
 
 ### Create Primary
@@ -45,20 +53,20 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
+Size_2018_2019 <- bind_rows(Size_Fall_2018, Size_Winter_2019)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1: 
+#### Issue #1:
 
 ```{r}
 
 ```
 
-#### Issue #2: 
+#### Issue #2:
 
 ```{r}
 
@@ -70,7 +78,7 @@ etc.
 
 ```
 
-### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar. 
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
 
