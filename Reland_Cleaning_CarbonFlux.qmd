@@ -40,9 +40,8 @@ Reformat the data from each of your imported spreadsheets to have common columns
 
 ```{r}
 flux_fall18_raw |>
-  slice(-1) |>
-  as.Date(Date, origin = "1899-12-30")
-  
+  slice(-1)
+
 flux_win19_raw |>
   slice(-1)
 ```
@@ -57,7 +56,7 @@ flux_win19_raw |>
 
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
-```{r}   ## join by quad (only common column)}
+```{r}
 
 ```
 
