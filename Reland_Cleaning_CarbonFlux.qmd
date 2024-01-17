@@ -39,20 +39,24 @@ Reformat the data from each of your imported spreadsheets to have common columns
 #### Data Frame #1: Fall 2018 data (example)
 
 ```{r}
-flux_fall18_raw |>
+flux_fall18_date <- flux_fall18_raw |>
   slice(-1) |>
   mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", ))
 
-flux_win19_raw |>
-  slice(-1) |>
-  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", ))
 
 ```
 
 #### Data Frame #2: fill in and add as needed
 
 ```{r}
+flux_win19_date <- flux_win19_raw |>
+  slice(-1) |>
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", ))
+```
 
+```{r}
+flux_jun18_raw
+  ##currently not needed
 ```
 
 #### Complete Raw Data
