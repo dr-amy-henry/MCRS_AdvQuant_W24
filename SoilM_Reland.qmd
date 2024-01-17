@@ -47,16 +47,21 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-Moist <- bind_rows(Moist18, Moist19)
+Moist <- bind_rows(Moist18, MoistW19)
+View(Moist)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: correct date since its weird
 
 ```{r}
+Moist1 <-Moist|>
+  mutate(Date=
+as.Date(as.numeric(Date), origin = "1899-12-30"))
+view(Moist1)
 ```
 
 #### Issue #2:
