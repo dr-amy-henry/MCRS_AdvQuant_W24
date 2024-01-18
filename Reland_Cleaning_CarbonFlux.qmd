@@ -23,9 +23,12 @@ library(readxl)
 ### Import Data Files
 
 ```{r}
-CFlux_Fall2018_raw <-read_excel("RelandscapingData/CFlux_Fall 2018 GH Relandscaping Carbon Flux Data.xlsx")
-CFlux_June2018_raw <- read_excel("RelandscapingData/CFlux_GH Relandscaping Carbon Flux Data_Jun2018.xlsx")
-CFlux_Winter2019_raw <- read_excel("RelandscapingData/CFlux_Winter 2019 GH Relandscaping Carbon Flux Data.xlsx")
+flux_fall18_raw <- read_excel("CFlux_Fall 2018 GH Relandscaping Carbon Flux Data.xlsx")
+
+flux_jun18_raw <- read_excel("CFlux_GH Relandscaping Carbon Flux Data_Jun2018.xlsx")
+
+flux_win19_raw <- read_excel("CFlux_Winter 2019 GH Relandscaping Carbon Flux Data.xlsx")
+
 
 ```
 
@@ -36,29 +39,32 @@ Reformat the data from each of your imported spreadsheets to have common columns
 #### Data Frame #1: Fall 2018 data
 
 ```{r}
-CFlux_Fall2018 <- CFlux_Fall2018_raw |>
-  #remove the first row
-  slice(-1)|>
-  #change the "Date" column to "yyyy-mm-dd"
-  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30"))
+#### Data Frame #1: Fall 2018 data (example)
+
+flux_fall18_date <- flux_fall18_raw |>
+  #remove first row
+  slice(-1) |>
+  #change date in "Date" column to "yyyy-mm-dd"
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", ))
+
 ```
 
-#### Data Frame #2: June 2018 data
+#### Data Frame #2: Winter 2019 data
 
 ```{r}
-CFlux_June2018 <- CFlux_Fall2018_raw |>
-  #change 
-  mutate()
+flux_win19_date <- flux_win19_raw |>
+  #remove first row
+  slice(-1) |>
+  #change date in "Date" column to "yyyy-mm-dd"
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", ))
 ```
 
-#### Data Frame #3: Winter 2019 data
+**Data Frame #3: June 2018 data**
 
 ```{r}
-CFlux_Winter2019 <- CFlux_Winter2019_raw |>
-  #remove the first row
-  slice(-1)|>
-  #change the "Date" column to "yyyy-mm-dd"
-  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30"))
+flux_jun18_date <-flux_jun18_raw |>
+  #change last column to state "Notes"
+  mutate("...9" = Notes)
 ```
 
 #### Complete Raw Data

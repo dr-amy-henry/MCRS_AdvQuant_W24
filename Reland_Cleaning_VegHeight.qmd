@@ -4,18 +4,19 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: FILL IN YOUR VARIABLE HERE
+## Relandscaping Data Cleaning: Carbon Flux
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #:
+Team #: 4
 
-Team Members:
+Team Members: Cherry, Janet, Katelin
 
 ### Load Packages
 
 ```{r}
-
+library(tidyverse)
+library(dplyr)
 ```
 
 ### Import Data Files
@@ -52,13 +53,13 @@ Bind your cleaned data frames together into one object. Clean up any remaining c
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1: 
+#### Issue #1:
 
 ```{r}
 
 ```
 
-#### Issue #2: 
+#### Issue #2:
 
 ```{r}
 
@@ -70,7 +71,7 @@ etc.
 
 ```
 
-### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar. 
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
 
