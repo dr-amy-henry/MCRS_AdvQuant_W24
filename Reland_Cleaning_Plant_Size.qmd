@@ -26,10 +26,8 @@ library(readxl)
 columns <- c("Date", "Treatment","Block", "Observers", "Plant_Species", "Tag_Number", "Height_cm", "Width_cm", "Length_cm", "Notes"  )
 Size_Fall_2018 <- read_excel("RelandscapingData/Size_Fall 2018 GH Relandscaping Plant Size Data.xlsx", 
     col_names = columns, skip = 2)
-View(Size_Fall_2018)
 
 Size_Winter_2019 <- read_excel("RelandscapingData/Size_Winter 2019 GH Relandscaping Plant Size Data.xlsx",  col_names = columns, skip = 2)
-View(Size_Winter_2019)
 ```
 
 ### Create Primary
@@ -63,7 +61,10 @@ Go through your raw data frame column by column to find and correct issues.
 #### Issue #1:
 
 ```{r}
-
+Size_2018_2019 = Size_2018_2019 |> 
+  mutate("Plant_ID" = paste(Plant_Species, Tag_Number, sep='_')) |> 
+  mutate(Date = ymd(Date)) |> 
+  mutate(Year = year(Date))
 ```
 
 #### Issue #2:
