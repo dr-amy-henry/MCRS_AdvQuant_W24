@@ -15,13 +15,27 @@ Team Members:
 ### Load Packages
 
 ```{r}
-
+#install.packages(tidyverse)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(readxl)
 ```
 
 ### Import Data Files
 
 ```{r}
+StomCon_Winter <- read_excel("StomCon_Winter 2019 GH Relandscaping Stomatal Conductance Data.xlsx", 
+             sheet = 1)
+            # col_names = FALSE, 
+             # col_names = TRUE,
+             #col_types = TRUE, 
+            #col_types = "text" 
 
+```
+
+```{r}
+StomCon_Fall <- read_excel("StomCon_Fall 2018 GH Relandscaping Stomatal Conductance Data.xlsx")
 ```
 
 ### Create Primary
