@@ -70,7 +70,7 @@ view(Moist1)
 
 ```
 
-etc.
+Tory
 
 ```{r}
 
