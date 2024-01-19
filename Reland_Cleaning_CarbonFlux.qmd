@@ -65,7 +65,7 @@ flux_win19_date <- flux_win19_raw |>
 ```{r}
 flux_jun18_date <-flux_jun18_raw |>
   #change last column to state "Notes"
-  mutate("...9" = Notes)
+  rename('Notes' = "...9")
 ```
 
 #### Complete Raw Data
@@ -73,6 +73,7 @@ flux_jun18_date <-flux_jun18_raw |>
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
+
 
 ```
 
