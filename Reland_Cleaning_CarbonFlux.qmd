@@ -64,8 +64,8 @@ flux_win19_date <- flux_win19_raw |>
 
 ```{r}
 flux_jun18_date <-flux_jun18_raw |>
-  #change last column to state "Notes"
-  mutate("...9" = Notes)
+  rename("Notes" = "...9") #change last column to state "Notes"
+
 ```
 
 #### Complete Raw Data
@@ -73,12 +73,43 @@ flux_jun18_date <-flux_jun18_raw |>
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
+flux_fall18_ready <- flux_fall18_date |> #time as.numeric, CO2 as.numeric
+  mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
+  mutate(`CO2 (ppm)` = as.numeric(`CO2 (ppm)`))
 
+flux_win19_ready <- flux_win19_date |>   #time as.numeric, CO2 as.numeric
+  mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
+  mutate(`CO2 (ppm)` = as.numeric(`CO2 (ppm)`))
+
+flux_jun18_ready <- flux_jun18_date |>   #date as.date
+  mutate(Date = as.Date(Date))
+
+fall18win19 <- bind_rows(flux_fall18_ready, flux_win19_ready)
+
+flux_data_comb <- bind_rows(fall18win19, flux_jun18_ready)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
+
+Cherry branch: cherry_phase1
+
+Katelin branch: katelin_phase1
+
+Janet branch: janet_phase1
+
+**Cleaning:**
+
+-   **reformat names (no spaces, "-" or "\_" only)**
+
+-   **variables in appropriate format**
+
+-   **mostly free of data errors**
+
+-   **primary file saved as both .csv and .Rdata**
+
+-   [**ANNOTATED**]{.underline}
 
 #### Issue #1:
 
