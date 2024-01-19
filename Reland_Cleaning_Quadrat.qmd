@@ -27,7 +27,8 @@ library(readxl)
 
 ```{r}
 Quad_Winter_19 <- read_excel("Quad_Winter 2019 GH Relandscaping Quadrat Data.xlsx", 
-             sheet = 1)
+             sheet = 1, 
+             col_types = "text")
             # col_names = FALSE, 
              # col_names = TRUE,
              #col_types = TRUE, 
@@ -36,11 +37,13 @@ Quad_Winter_19 <- read_excel("Quad_Winter 2019 GH Relandscaping Quadrat Data.xls
 ```
 
 ```{r}
-Quad_Spring_18 <- read_excel("Quad_GH Relandscaping Quadrat Data_Jun2018.xlsx")
+Quad_Spring_18 <- read_excel("Quad_GH Relandscaping Quadrat Data_Jun2018.xlsx",
+                             col_types = "text")
 ```
 
 ```{r}
-QuadFall_18<- read_excel("Quad_Fall 2018 GH Relandscaping Quadrat Data.xlsx")
+QuadFall_18<- read_excel("Quad_Fall 2018 GH Relandscaping Quadrat Data.xlsx",
+                         col_types = "text")
 ```
 
 ### Create Primary
@@ -50,13 +53,34 @@ Reformat the data from each of your imported spreadsheets to have common columns
 #### Data Frame #1: Fall 2018 data (example)
 
 ```{r}
-
+Quad_Winter_19_Clean <- Quad_Winter_19 |>
+  select(2:9) |>
+  mutate(Turf = case_when(Block == "No TURF Control" ~ "NonTurf",
+                    Block == "TURF Control" ~ "Turf",
+         Quad == "3.0" ~ "NonTurf")) |>
+  #mutate(Block = as.numeric(Block))|>
+ # mutate(Quad = as.numeric(Quad)) |>
+  mutate(Date="Winter 2019")
 ```
 
 #### Data Frame #2: fill in and add as needed
 
 ```{r}
+Quad_Spring_18_Clean <- Quad_Spring_18 |>
+  select(2:9) |>
+  mutate(Block = "") |>
+  #mutate(Block = as.numeric(Block)) |>
+  #mutate(Quad = as.numeric(Quad)) |>
+  mutate(Date="Spring 2018")
+```
 
+```{r}
+QuadFall_18_Clean <- QuadFall_18 |>
+  select(2:9) |>
+  mutate(Turf = case_when(Quad == "Non-Turf Control" ~ "NonTurf",
+                    Quad == "Turf Control" ~ "Turf")) |>
+  #mutate(Quad = as.numeric(Quad))|>
+  mutate(Date="Fall 2018")
 ```
 
 #### Complete Raw Data
@@ -64,7 +88,7 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
+Quad_Combined <- bind_rows(Quad_Winter_19_Clean, Quad_Spring_18_Clean, QuadFall_18_Clean)
 ```
 
 ### Cleaning
