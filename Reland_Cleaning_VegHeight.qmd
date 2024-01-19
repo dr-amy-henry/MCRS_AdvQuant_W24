@@ -17,12 +17,16 @@ Team Members: Cherry, Janet, Katelin
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(readxl)
 ```
 
 ### Import Data Files
 
 ```{r}
 
+veg_fall18_raw <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
+
+veg_jun18_raw <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
 ```
 
 ### Create Primary
@@ -32,7 +36,8 @@ Reformat the data from each of your imported spreadsheets to have common columns
 #### Data Frame #1: Fall 2018 data (example)
 
 ```{r}
-
+veg_fall18_raw
+veg_jun18_raw
 ```
 
 #### Data Frame #2: fill in and add as needed
