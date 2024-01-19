@@ -23,11 +23,8 @@ library(readxl)
 ### Import Data Files
 
 ```{r}
-Vacuum_Arthropods_RAW <- read_excel("RelandscapingData/Vacuum_‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏collect_data_arthropods_2019_7.12.21.xlsx", 
-    sheet = "DATA", skip = 1)
-
-Vacuum_Sampling_RAW <- read_excel("RelandscapingData/Vacuum Sampling Data.xlsx", 
-    sheet = "Sheet1")
+Vacuum_RAW <- read_excel("RelandscapingData/Vacuum_‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏collect_data_arthropods_2019_7.12.21.xlsx", 
+    sheet = "DATA", skip = 1, col_types="text")
 
 ```
 
@@ -35,18 +32,23 @@ Vacuum_Sampling_RAW <- read_excel("RelandscapingData/Vacuum Sampling Data.xlsx",
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Changing dashes to underscores in sample name 
+#### Data Frame #1: Changing dashes to underscores in sample name
 
 ```{r}
-Vacuum_Arthropods <- Vacuum_Arthropods_RAW |>
-  mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_'))
-
+Vacuum_Arthropods <- Vacuum_RAW |>
+  mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_')) |> 
+  select(-c(photo, Date, `Date of sorting`)) |> 
+  rename(
+    Sample_ID = `Sample ID`,
+    Specimen_comments = `Specific comments about specimen`,
+    ARCA_code = `ARCA code`,
+    Size_mm = `size (mm)`
+  )
 ```
 
 #### Data Frame #2: fill in and add as needed
 
 ```{r}
-
 ```
 
 #### Complete Raw Data
@@ -54,14 +56,13 @@ Vacuum_Arthropods <- Vacuum_Arthropods_RAW |>
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1: 
+#### Issue #1:
 
 ```{r}
 
