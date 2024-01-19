@@ -42,16 +42,17 @@ StomCon_Fall <- read_excel("StomCon_Fall 2018 GH Relandscaping Stomatal Conducta
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Fall 2018 data (example)
+#### Data Frame #1: Fall 2018 data
 
 ```{r}
 
 ```
 
-#### Data Frame #2: fill in and add as needed
+#### Data Frame #2: Winter 2019
 
 ```{r}
-
+StomCon_Winter_Clean <- StomCon_Winter |>
+  select(1:10)
 ```
 
 #### Complete Raw Data
@@ -59,7 +60,7 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
+StomCon_Combined <- bind_rows(StomCon_Fall, StomCon_Winter_Clean)
 ```
 
 ### Cleaning
