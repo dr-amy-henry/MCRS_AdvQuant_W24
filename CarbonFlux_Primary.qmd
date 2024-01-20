@@ -204,10 +204,10 @@ flux_data_Turf <-
 
 #Remove Turf condition from Block, rename all NA to 0, rename all Control condition from Quad, rename no planting condition, remove - from NonNative
 flux_data_Turf<-flux_data_Turf %>%
-  mutate(Block = recode(Block, "Non-Turf Control" = 'NA' )) %>%
+  mutate(Block = recode(Block, "Non-Turf Control" = '0' )) %>%
   mutate(Block = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Quad, "Control" = "NA")) %>%
+  mutate(Quad = recode(Quad, "NA" = '0')) %>%
+  mutate(Quad = recode(Quad, "Control" = "0")) %>%
   mutate(Treatment = recode(Treatment, "Control (no planting)" = "No Planting")) %>%
   mutate(Treatment = recode(Treatment, "Non-Native" = "NonNative")) 
 
