@@ -17,27 +17,69 @@ Team Members: Cherry, Janet, Katelin
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(readxl)
 ```
 
 ### Import Data Files
 
 ```{r}
 
+veg_fall18_raw <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
+
+veg_jun18_raw <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
 ```
 
 ### Create Primary
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Fall 2018 data (example)
+#### Data Frame #1: Fall 2018 Data
 
 ```{r}
+##date as.date, site ID + dist + all (cm) as.numeric, MISSING NOTES COL
 
+veg_fall18_mid <- veg_fall18_raw |>
+  slice(2:199) |> #remove sample row and all extra, empty data
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
+  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
+  mutate(Distance = as.numeric(Distance)) |> #reformat Distance
+  mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
+  mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
+  mutate(`Shrub Height (cm)` = as.numeric(`Shrub Height (cm)`)) |> #reformat shrub
+  mutate(`Tree Height (cm)` = as.numeric(`Tree Height (cm)`)) |> #reformat tree
+
+  ###prelim cleaning done, set NA to 0
+  
+  mutate_at(vars(- Date, Observers, `Previous Veg.`, `Transect ID`, Notes), ~ ifelse(is.na(.), 0, .)) |> # replaces NA with 0 (for some reason is including the notes column)
+
+  rename_all(~ gsub(" ", "_", .)) #replaces spaces in columns with _
+
+colnames(veg_fall18_mid) [colnames(veg_fall18_mid) == "Previous_Veg."]  <- "Turf"
+colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
+
+##data frame cleaned, column names correctly formatted
 ```
 
-#### Data Frame #2: fill in and add as needed
+#### Data Frame #2: June 2018 Data
 
 ```{r}
+veg_jun18_mid <- veg_jun18_raw |>
+  slice(1:198) |>
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
+  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
+  mutate(Distance = as.numeric(Distance)) |> #reformat Distance
+  mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
+  mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
+  mutate(`Shrub Height (cm)` = as.numeric(`Shrub Height (cm)`)) |> #reformat shrub
+  mutate(`Tree Height (cm)` = as.numeric(`Tree Height (cm)`)) |> #reformat tree
+  
+  mutate_at(vars(- Date, Observers, Turf, `Transect ID`), ~ ifelse(is.na(.), 0, .)) |> # replaces NA with 0 (for some reason is including the notes column)
+  
+  rename_all(~ gsub(" ", "_", .)) #replaces spaces in columns with _
+
+colnames(veg_jun18_mid) <- gsub("[()]", "", colnames(veg_jun18_mid))
+
+veg_jun18_mid$Notes <- as.character(0) #adds notes column, all values 0
 
 ```
 
@@ -46,20 +88,20 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-
+veg_comb <- bind_rows(veg_fall18_mid, veg_jun18_mid)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Transect ID - some of the objects have "\_" and others have a space in the name.
 
 ```{r}
 
 ```
 
-#### Issue #2:
+#### Issue #2: Distance does not have a measurement and increases numerically
 
 ```{r}
 
