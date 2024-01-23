@@ -62,6 +62,7 @@ colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
 
 #### Data Frame #2: June 2018 Data
 
+
 ```{r}
 veg_jun18_mid <- veg_jun18_raw |>
   slice(1:198) |>
