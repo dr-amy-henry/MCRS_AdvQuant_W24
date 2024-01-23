@@ -60,7 +60,8 @@ colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
 ##data frame cleaned, column names correctly formatted
 ```
 
-####  Data Frame #2: June 2018 Data
+#### Data Frame #2: June 2018 Data
+
 
 ```{r}
 veg_jun18_mid <- veg_jun18_raw |>
@@ -95,13 +96,13 @@ veg_comb <- bind_rows(veg_fall18_mid, veg_jun18_mid)
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Turf ID has "\_" and a space in the object name
 
 ```{r}
 
 ```
 
-#### Issue #2:
+#### Issue #2: Distance does not have a measurement and increases by one count
 
 ```{r}
 

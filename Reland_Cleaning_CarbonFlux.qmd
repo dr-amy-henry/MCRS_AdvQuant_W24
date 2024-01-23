@@ -65,7 +65,7 @@ flux_win19_date <- flux_win19_raw |>
 ```{r}
 flux_jun18_date <-flux_jun18_raw |>
   #change last column to state "Notes"
-  rename('Notes' = "...9")
+  rename("Notes" = "...9") #change last column to state "Notes"
 
 ```
 
@@ -78,7 +78,6 @@ flux_fall18_ready <- flux_fall18_date |> #time as.numeric, CO2 as.numeric
   mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
   mutate(`CO2 (ppm)` = as.numeric(`CO2 (ppm)`))
 
-
 flux_win19_ready <- flux_win19_date |>   #time as.numeric, CO2 as.numeric
   mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
   mutate(`CO2 (ppm)` = as.numeric(`CO2 (ppm)`))
@@ -86,9 +85,9 @@ flux_win19_ready <- flux_win19_date |>   #time as.numeric, CO2 as.numeric
 flux_jun18_ready <- flux_jun18_date |>   #date as.date
   mutate(Date = as.Date(Date))
 
-fall18win19 <- bind_rows(flux_fall18_ready, flux_win19_ready) #combine datasets
+fall18win19 <- bind_rows(flux_fall18_ready, flux_win19_ready)
 
-flux_data_comb <- bind_rows(fall18win19, flux_jun18_ready) #combine all datasets
+flux_data_comb <- bind_rows(fall18win19, flux_jun18_ready)
 ```
 
 ### Cleaning
@@ -113,120 +112,26 @@ Janet branch: janet_phase1
 
 -   [**ANNOTATED**]{.underline}
 
-#### Issue #1: Reformat names
+#### Issue #1:
 
 ```{r}
-colnames(flux_data_comb)[6]<-"CycleType" #Remove the space
-colnames(flux_data_comb)[7]<-"Time_sec"  #Remove parenthesis
-colnames(flux_data_comb)[8]<-"CO2_ppm"   #Remove parenthesis
+
 ```
 
-#### Issue #2: Fill in empty Block data
+#### Issue #2:
 
 ```{r}
-#Replace any empty data under Block with 0
-flux_data_NA<-flux_data_comb %>%
-  mutate(Block = ifelse(is.na(Block), 0, Block))
 
-#Fill in empty Block numbers based on Quad numbers
-flux_data_block <- 
-  within(flux_data_NA, Block[Block == '0' & Quad == '1.0'] <- '2.0') 
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '2.0'] <- '2.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '3.0'] <- '2.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '4.0'] <- '2.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '5.0'] <- '3.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '6.0'] <- '3.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '7.0'] <- '3.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '8.0'] <- '3.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '9.0'] <- '1.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '10.0'] <- '1.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '11.0'] <- '1.0')
-flux_data_block <- 
-  within(flux_data_block, Block[Block == '0' & Quad == '12.0'] <- '1.0')
 ```
 
 etc.
 
-#### Issue #2: Clean the Block, Quad and Turf columns
-
 ```{r}
-#Replace any empty spaces under Turf with 0 for easier manipulation
-flux_data_block<-flux_data_block %>%
-  mutate(Turf = ifelse(is.na(Turf), 0, Turf))
 
-#Move the comment under Quad to Notes column
-flux_data_Quad<- 
-  within(flux_data_block, Notes[Turf == 'Turf' & Quad == 'Control; sunny, grassy area in front of BC Cavern (next to well plate in aldrich)'] <- 'Sunny, grassy area in front of BC Cavern (next to well plate in aldrich)')
-
-#Rewrite the data into a shorter input
-flux_data_Quad<- 
-  flux_data_Quad %>%
-  mutate(Quad = recode(Quad, "Control; sunny, grassy area in front of BC Cavern (next to well plate in aldrich)" = 'Control' ))
-
-#Move the Turf comment to the Turf column 
-flux_data_Quad<-
-  within(flux_data_Quad, Turf[Turf == '0' & Quad == 'Non-Turf Control'] <- 'Non- Turf Control') 
-
-#Move the Turf comment to the Turf column
-flux_data_Quad<-
-  within(flux_data_Quad, Turf[Turf == '0' & Quad == 'Turf Control'] <- 'Turf Control') 
-
-#Remove the Turf comments from the Quad and Block columns
-flux_data_Quad$Quad[flux_data_Quad$Quad == 'Turf Control'] <- 'NA'
-flux_data_Quad$Quad[flux_data_Quad$Quad == 'Non-Turf Control'] <- 'NA'
-flux_data_Quad$Block[flux_data_Quad$Block == 'Turf Control'] <- 'NA'
-
-#Rewrite over the Turf column based off the Block number
-flux_data_Turf <- 
-  within(flux_data_Quad, Turf[Turf == '0' & Block == '1.0'] <- 'Non-Turf')
-flux_data_Turf <- 
-  within(flux_data_Turf, Turf[Turf == '0' & Block == '2.0'] <- 'Turf')
-flux_data_Turf <- 
-  within(flux_data_Turf, Turf[Turf == '0' & Block == '3.0'] <- 'Turf')
-
-#Rewrite "No Turf" to "Non-Turf" and "Non- Turf Control" to "Non-Turf Control"
-flux_data_Turf <- flux_data_Turf %>%
-  mutate(Turf = recode(Turf, "No Turf" = 'Non-Turf' )) %>%
-  mutate(Turf = recode(Turf, "Non- Turf Control" = "Non-Turf Control"))
-
-#Rewrite the data into a shorter input
-flux_data_Turf <- 
-  within(flux_data_Turf, Turf[Turf == 'Turf' & Treatment == 'Control (no planting)'] <- 'Turf Control')
-
-
-#Remove Turf condition from Block, rename all NA to 0, rename all Control condition from Quad, rename no planting condition, remove - from NonNative
-flux_data_Turf<-flux_data_Turf %>%
-  mutate(Block = recode(Block, "Non-Turf Control" = 'NA' )) %>%
-  mutate(Block = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Quad, "Control" = "NA")) %>%
-  mutate(Treatment = recode(Treatment, "Control (no planting)" = "No Planting")) %>%
-  mutate(Treatment = recode(Treatment, "Non-Native" = "NonNative")) 
-
-```
-
-#### Issue #3: Convert Block and Quad to Numeric Values
-
-```{r}
-# Convert Block and Quad columns to Numeric Values
-flux_data_Final <-
-  flux_data_Turf %>%
-  mutate(Block = as.numeric(Block)) %>%
-  mutate(Quad = as.numeric(Quad))
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
-write.csv(flux_data_Final, "CarbonFlux_Primary.csv", row.names=FALSE)
+
 ```
