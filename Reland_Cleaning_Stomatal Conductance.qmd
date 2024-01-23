@@ -44,14 +44,17 @@ Reformat the data from each of your imported spreadsheets to have common columns
 #### Data Frame #1: Fall 2018 data
 
 ```{r}
-
+StomCon_Fall_Clean <- StomCon_Fall |>
+  select(2:10) |>
+  mutate(Date="Fall_2018")
 ```
 
 #### Data Frame #2: Winter 2019
 
 ```{r}
 StomCon_Winter_Clean <- StomCon_Winter |>
-  select(1:10)
+  select(2:10) |>
+  mutate(Date="Winter_2019")
 ```
 
 #### Complete Raw Data
@@ -59,7 +62,7 @@ StomCon_Winter_Clean <- StomCon_Winter |>
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-StomCon_Combined <- bind_rows(StomCon_Fall, StomCon_Winter_Clean)
+StomCon_Combined <- bind_rows(StomCon_Fall_Clean, StomCon_Winter_Clean)
 ```
 
 ### Cleaning
@@ -92,13 +95,7 @@ StomCon_Combined <- StomCon_Combined|>
  ))
 ```
 
-#### Issue #4: Change Date
-
-```{r}
-
-```
-
-#### Issue #5: Get rid of NA data
+#### Issue #4: Get rid of NA data
 
 ```{r}
 
