@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: Carbon Flux
+## Relandscaping Data Cleaning: Vegetation Height
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
@@ -61,7 +61,6 @@ colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
 ```
 
 #### Data Frame #2: June 2018 Data
-
 
 ```{r}
 veg_jun18_mid <- veg_jun18_raw |>
