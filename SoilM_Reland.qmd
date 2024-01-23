@@ -67,7 +67,7 @@ view(Moist1)
 #### Issue #2:
 
 ```{r}
-Test
+# Test
 ```
 
 Tory
@@ -76,8 +76,17 @@ Tory
 
 ```
 
-### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
+Kelsey
 
 ```{r}
 
+```
+
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
+
+```{r}
+# Kelsey 
+# turns data into a CSV file, we just replace Moist1 with whatever our final data set is named 
+
+write.csv(Moist1, "RelandscapingData/MOIST_Primary.csv", row.names = FALSE)
 ```

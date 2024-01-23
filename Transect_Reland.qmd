@@ -105,5 +105,8 @@ etc.
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
+# Kelsey 
+# turns data into a CSV file, we just replace Transect with whatever our final data set is named 
 
+write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
 ```
