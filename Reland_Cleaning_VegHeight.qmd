@@ -27,6 +27,9 @@ library(readxl)
 veg_fall18_raw <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
 
 veg_jun18_raw <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
+
+veg_win19_raw <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",
+sheet =2, col_types = "text")
 ```
 
 ### Create Primary
