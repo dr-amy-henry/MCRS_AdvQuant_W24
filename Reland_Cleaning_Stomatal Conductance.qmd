@@ -25,8 +25,7 @@ library(readxl)
 ### Import Data Files
 
 ```{r}
-StomCon_Winter <- read_excel("StomCon_Winter 2019 GH Relandscaping Stomatal Conductance Data.xlsx", 
-             sheet = 1)
+StomCon_Winter <- read_excel("StomCon_Winter 2019 GH Relandscaping Stomatal Conductance Data.xlsx", col_types = "text")
             # col_names = FALSE, 
              # col_names = TRUE,
              #col_types = TRUE, 
@@ -35,7 +34,7 @@ StomCon_Winter <- read_excel("StomCon_Winter 2019 GH Relandscaping Stomatal Cond
 ```
 
 ```{r}
-StomCon_Fall <- read_excel("StomCon_Fall 2018 GH Relandscaping Stomatal Conductance Data.xlsx")
+StomCon_Fall <- read_excel("StomCon_Fall 2018 GH Relandscaping Stomatal Conductance Data.xlsx", col_types = "text")
 ```
 
 ### Create Primary
@@ -67,19 +66,39 @@ StomCon_Combined <- bind_rows(StomCon_Fall, StomCon_Winter_Clean)
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Get rid of the first row
 
 ```{r}
-
+StomCon_Combined <- StomCon_Combined|>
+  filter(Block != '43103.0')
 ```
 
-#### Issue #2:
+#### Issue #2: Select columns
 
 ```{r}
-
+StomCon_Combined <- StomCon_Combined|>
+  select(-Observers, -Notes)
 ```
 
 etc.
+
+#### Issue #3: Change Non-Native to NonNative
+
+```{r}
+StomCon_Combined <- StomCon_Combined|>
+  mutate(Treatment = case_when(
+   Treatment == "Non-Native" ~ "NonNative",
+   is.character(Treatment) == TRUE ~ Treatment
+ ))
+```
+
+#### Issue #4: Change Date
+
+```{r}
+
+```
+
+#### Issue #5: Get rid of NA data
 
 ```{r}
 
