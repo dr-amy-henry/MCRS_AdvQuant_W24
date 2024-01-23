@@ -95,21 +95,43 @@ Quad_Combined <- bind_rows(Quad_Winter_19_Clean, Quad_Spring_18_Clean, QuadFall_
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Change column names
 
 ```{r}
-
+Quad_Combined_Issue_1 <- Quad_Combined |>
+  rename(Species_Code = `Species Code`, Percent_Cover = Cover)
 ```
 
-#### Issue #2:
+#### Issue #2: Remove unnecessary rows and columns
 
 ```{r}
-
+Quad_Combined_Issue_2 <- Quad_Combined_Issue_1 |>
+  select(2:7,9:10) |>
+  filter(Species_Code != "six-letter code")
 ```
 
-etc.
+#### Issue #3: Make columns uniform
 
 ```{r}
+Quad_Combined_Issue_3 <- Quad_Combined_Issue_2 |>
+  mutate_all(na_if, "-") |>
+  
+  mutate(Percent_Cover = str_replace(Percent_Cover, '% Cover', '')) |>
+  
+  mutate(Quad = as.numeric(Quad)) |> 
+  mutate(Block = as.numeric(Block)) |>
+  mutate(Count = as.numeric(Count)) |>
+  mutate(Percent_Cover = as.numeric(Percent_Cover))
+
+Quad_Combined_Issue_3$Species_Code[Quad_Combined_Issue_3$Species_Code == "HEDHEL (eng ivy)"] <- "HEDHEL"
+Quad_Combined_Issue_3$Species_Code[Quad_Combined_Issue_3$Species_Code == "UK(01)"] <- "UNK1"
+Quad_Combined_Issue_3$Species_Code[Quad_Combined_Issue_3$Species_Code == "UK(02)"] <- "UNK2"
+Quad_Combined_Issue_3$Species_Code[Quad_Combined_Issue_3$Species_Code == "UK(03)"] <- "UNK3"
+Quad_Combined_Issue_3$Species_Code[Quad_Combined_Issue_3$Species_Code == "UK(04)"] <- "UNK4"
+
+Quad_Combined_Issue_3$Treatment[Quad_Combined_Issue_3$Treatment =="NN"]<-"NonNative"
+Quad_Combined_Issue_3$Treatment[Quad_Combined_Issue_3$Treatment =="N"]<-"Native"
+
 
 ```
 
