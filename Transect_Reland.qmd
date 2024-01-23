@@ -57,8 +57,7 @@ Reformat the data from each of your imported spreadsheets to have common columns
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
-View(Transect)
+# moved down for cleaning needed prior to binding
 ```
 
 ### Cleaning
@@ -96,10 +95,18 @@ glimpse(TransectW19)
 
 ```
 
-etc.
+#### Issue #3: Updating column names
 
 ```{r}
+# TransectS18 has col name "Turf" but other dataframes have "Previous Veg."
+colnames(TransectS18)[which(names(TransectS18) == "Turf")] <- "Previous Veg."
+```
 
+#### Complete Raw Data
+
+```{r}
+Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
+View(Transect)
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
