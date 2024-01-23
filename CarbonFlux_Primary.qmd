@@ -64,8 +64,7 @@ flux_win19_date <- flux_win19_raw |>
 
 ```{r}
 flux_jun18_date <-flux_jun18_raw |>
-  #change last column to state "Notes"
-  rename('Notes' = "...9")
+  rename("Notes" = "...9") #change last column to state "Notes"
 
 ```
 
@@ -77,7 +76,6 @@ Bind your cleaned data frames together into one object. Clean up any remaining c
 flux_fall18_ready <- flux_fall18_date |> #time as.numeric, CO2 as.numeric
   mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
   mutate(`CO2 (ppm)` = as.numeric(`CO2 (ppm)`))
-
 
 flux_win19_ready <- flux_win19_date |>   #time as.numeric, CO2 as.numeric
   mutate(`Time (sec)` = as.numeric(`Time (sec)`)) |>
@@ -206,10 +204,10 @@ flux_data_Turf <-
 
 #Remove Turf condition from Block, rename all NA to 0, rename all Control condition from Quad, rename no planting condition, remove - from NonNative
 flux_data_Turf<-flux_data_Turf %>%
-  mutate(Block = recode(Block, "Non-Turf Control" = 'NA' )) %>%
+  mutate(Block = recode(Block, "Non-Turf Control" = '0' )) %>%
   mutate(Block = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Block, "NA" = '0')) %>%
-  mutate(Quad = recode(Quad, "Control" = "NA")) %>%
+  mutate(Quad = recode(Quad, "NA" = '0')) %>%
+  mutate(Quad = recode(Quad, "Control" = "0")) %>%
   mutate(Treatment = recode(Treatment, "Control (no planting)" = "No Planting")) %>%
   mutate(Treatment = recode(Treatment, "Non-Native" = "NonNative")) 
 
