@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: Vegetation Height 
+## Relandscaping Data Cleaning: Vegetation Height
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
