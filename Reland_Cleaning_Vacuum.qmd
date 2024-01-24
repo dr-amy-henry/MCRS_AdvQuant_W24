@@ -37,11 +37,9 @@ Reformat the data from each of your imported spreadsheets to have common columns
 ```{r}
 Vacuum_Arthropods <- Vacuum_RAW |>
   mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_')) |> 
-  select(-c(photo, Date, `Date of sorting`)) |> 
+  select(-c(photo, Date, `Date of sorting`, Tray, `ARCA code`, Cell, PlantRep, `Specific comments about specimen`, comments)) |> 
   rename(
     Sample_ID = `Sample ID`,
-    Specimen_comments = `Specific comments about specimen`,
-    ARCA_code = `ARCA code`,
     Size_mm = `size (mm)`
   )
 ```
