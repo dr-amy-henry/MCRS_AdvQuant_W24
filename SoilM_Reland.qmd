@@ -31,9 +31,11 @@ view(MoistS19)
 ## No 2019 data
 
 Moist18 <- read_excel("RelandscapingData/Moist_Fall 2018 GH Relandscaping Soil Moisture Data.xlsx", col_types = "text") %>% slice(-1)
+Moist18[Moist18 == "soil"] <- NA
+Moist18[Moist18 == "tough"] <- NA
 view(Moist18)
 
-MoistW19<- read_excel("RelandscapingData/Moist_Winter 2019 GH Relandscaping Soil Moisture Data.xlsx", col_types ="text") %>% slice(-1)
+MoistW19<- read_excel("RelandscapingData/Moist_Winter 2019 GH Relandscaping Soil Moisture Data.xlsx", col_types ="text") %>% slice(-1,-4)
 view(MoistW19)
 
 ```

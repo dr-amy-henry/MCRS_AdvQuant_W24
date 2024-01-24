@@ -29,16 +29,19 @@ library(lubridate)
 # Transect data
 
 TransectF18 <- read_excel("RelandscapingData/Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 2) |> 
-  slice(-1)
+  slice(-1)|>
+  slice(1:217)
   
 view(TransectF18) 
 
-TransectS18 <- read_excel("RelandscapingData/Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet = 2 )
+TransectS18 <- read_excel("RelandscapingData/Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet = 2 )|>
+  slice(1:505)
   
 view(TransectS18)
 
 TransectW19 <- read_excel("RelandscapingData/Transect_Winter 2019 GH Relandscaping Transect Data.xlsx") |> 
-  slice(-1)
+  slice(-1)|>
+  slice(1:280)
   
 view(TransectW19) 
 
