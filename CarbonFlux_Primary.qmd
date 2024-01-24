@@ -226,5 +226,5 @@ flux_data_Final <-
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
-write.csv(flux_data_Final, "CarbonFlux_Primary.csv", row.names=FALSE)
+write.csv(flux_data_Final, "CarbonFlux_Primary.csv", row.names=FALSE) 
 ```
