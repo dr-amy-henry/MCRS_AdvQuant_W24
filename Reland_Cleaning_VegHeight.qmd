@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: Carbon Flux
+## Relandscaping Data Cleaning: Vegetation Height 
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
@@ -27,6 +27,9 @@ library(readxl)
 veg_fall18_raw <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
 
 veg_jun18_raw <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
+
+veg_win19_raw <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",
+sheet =2, col_types = "text")
 ```
 
 ### Create Primary
@@ -60,7 +63,7 @@ colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
 ##data frame cleaned, column names correctly formatted
 ```
 
-####  Data Frame #2: June 2018 Data
+#### Data Frame #2: June 2018 Data
 
 ```{r}
 veg_jun18_mid <- veg_jun18_raw |>
@@ -95,13 +98,13 @@ veg_comb <- bind_rows(veg_fall18_mid, veg_jun18_mid)
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Turf ID has "\_" and a space in the object name
 
 ```{r}
 
 ```
 
-#### Issue #2:
+#### Issue #2: Distance does not have a measurement and increases by one count
 
 ```{r}
 
