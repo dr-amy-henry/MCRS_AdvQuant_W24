@@ -135,6 +135,12 @@ Quad_Combined_Issue_3$Treatment[Quad_Combined_Issue_3$Treatment =="N"]<-"Native"
 
 ```
 
+#### Issue #4: 
+
+```{r}
+
+```
+
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
