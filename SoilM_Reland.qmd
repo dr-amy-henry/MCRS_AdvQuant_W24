@@ -67,24 +67,6 @@ as.Date(as.numeric(Date), origin = "1899-12-30"))
 view(Moist1)
 ```
 
-#### Issue #2:
-
-```{r}
-# Test
-```
-
-Tory
-
-```{r}
-
-```
-
-Kelsey
-
-```{r}
-
-```
-
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
