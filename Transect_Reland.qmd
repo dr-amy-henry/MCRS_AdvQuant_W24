@@ -32,18 +32,21 @@ TransectF18 <- read_excel("RelandscapingData/Transect_VegHeight_Fall 2018 GH Rel
   slice(-1)|>
   slice(1:217)
   
-view(TransectF18) 
+#view(TransectF18) 
 
 TransectS18 <- read_excel("RelandscapingData/Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet = 2 )|>
   slice(1:505)
   
-view(TransectS18)
+#view(TransectS18)
 
 TransectW19 <- read_excel("RelandscapingData/Transect_Winter 2019 GH Relandscaping Transect Data.xlsx") |> 
   slice(-1)|>
   slice(1:280)
-  
-view(TransectW19) 
+  #make unkowns 6 character species code, and D(CYNDAC) a 6 character code
+conditions <- c("UNK 1", "UNK 2","UNK 3","UNK 4","D(CYNDAC)")
+replacement_values <- c("UNK(1)", "UNK(2)","UNK(3)","UNK(4)","CYNDAC")
+TransectW19$`Species Code` <- replace(TransectW19$`Species Code`, TransectW19$`Species Code` %in% conditions, replacement_values)
+#view(TransectW19) 
 
 
 
@@ -109,7 +112,11 @@ colnames(TransectS18)[which(names(TransectS18) == "Turf")] <- "Previous Veg."
 
 ```{r}
 Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
-View(Transect)
+#View(Transect)
+#remove data collected on the roads
+Transect<-Transect|>
+slice(-179,-269,-385,-754,-959)
+#View(Transect)
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
