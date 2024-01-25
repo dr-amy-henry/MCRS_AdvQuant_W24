@@ -64,7 +64,8 @@ Vacuum_Arthropods <- Vacuum_RAW |>
   mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_')) |> 
   rename(
     Sample_ID = `Sample ID`,
-    Size_mm = `size (mm)`
+    Size_mm = `size (mm)`,
+    count = `#`
   )
 ```
 
@@ -74,6 +75,35 @@ Vacuum_Arthropods <- Vacuum_RAW |>
 
 Vacuum_Arthropods <- Vacuum_Arthropods |> 
   select(-c(photo, Date, `Date of sorting`, Tray, `ARCA code`, Cell, PlantRep, `Specific comments about specimen`, comments))
+```
+
+#### Issue #3: Convert numbers to numerics
+
+```{r}
+
+# convert count to numeric
+Vacuum_Arthropods <- Vacuum_Arthropods |> 
+  mutate(count = as.numeric(count))
+
+# convert size to numeric
+# 1. use "NA" for varies and na
+Vacuum_Arthropods <- Vacuum_Arthropods |> 
+  mutate(
+    Is_Range = case_when(
+      tolower(Size_mm) == 'varies' ~ NA, 
+      tolower(Size_mm) == 'na' ~ NA,
+      grepl("to", tolower(Size_mm), fixed = TRUE) ~ TRUE,
+      .default = FALSE
+    )
+  ) |>
+# 2. provide average for range values, and convert rest of numbers to numeric
+  mutate (
+    Size_mm = case_when(
+      Size_mm == "3 to 5" ~ 4,
+      Size_mm == "5 TO 10" ~ 7.5, 
+      .default = as.numeric(Size_mm)
+    )
+  )
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
