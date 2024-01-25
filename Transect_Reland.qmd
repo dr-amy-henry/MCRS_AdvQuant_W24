@@ -126,4 +126,5 @@ slice(-179,-269,-385,-754,-959)
 # turns data into a CSV file, we just replace Transect with whatever our final data set is named 
 
 write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
+save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 ```
