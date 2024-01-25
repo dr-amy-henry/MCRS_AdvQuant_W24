@@ -92,4 +92,5 @@ Kelsey
 # turns data into a CSV file, we just replace Moist1 with whatever our final data set is named 
 
 write.csv(Moist1, "RelandscapingData/MOIST_Primary.csv", row.names = FALSE)
+save(Moist1, file="RelandscapingData/MOIST_Primary.RData")
 ```
