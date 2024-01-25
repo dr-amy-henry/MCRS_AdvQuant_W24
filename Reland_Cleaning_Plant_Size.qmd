@@ -4,11 +4,9 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: FILL IN YOUR VARIABLE HERE
+## Relandscaping Data Cleaning: Size
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
-
-Team #:
 
 Team Members: Sully, Erin, Tom, Audrey
 
@@ -23,7 +21,10 @@ library(tidyverse)
 
 ```{r}
 library(readxl)
+
+# set column names on import
 columns <- c("Date", "Treatment","Block", "Observers", "Plant_Species", "Tag_Number", "Height_cm", "Width_cm", "Length_cm", "Notes"  )
+
 Size_Fall_2018 <- read_excel("RelandscapingData/Size_Fall 2018 GH Relandscaping Plant Size Data.xlsx", 
     col_names = columns, skip = 2)
 
@@ -38,11 +39,15 @@ Reformat the data from each of your imported spreadsheets to have common columns
 
 ```{r}
 
+# Column names already match after setting on the import, no changes needed.
+
 ```
 
 #### Data Frame #2: fill in and add as needed
 
 ```{r}
+
+# Column names already match, no changes needed.
 
 ```
 
@@ -58,29 +63,37 @@ Size_2018_2019 <- bind_rows(Size_Fall_2018, Size_Winter_2019)
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Create unique Plant ID
 
 ```{r}
 Size_2018_2019 = Size_2018_2019 |> 
-  mutate("Plant_ID" = paste(Plant_Species, Tag_Number, sep='_')) |> 
+  mutate("Plant_ID" = paste(Plant_Species, Tag_Number, sep='_')) |>
   mutate(Date = ymd(Date)) |> 
   mutate(Year = year(Date))
 ```
 
-#### Issue #2:
+#### Issue #2: Remove plants without measurements
 
 ```{r}
-
+Size_2018_2019 = Size_2018_2019 |>
+  filter(!(is.na(Height_cm) & is.na(Length_cm) & is.na(Width_cm)))
 ```
 
-etc.
+#### Issue #3: Remove unnecessary columns:
+
+-   Observers: don't need to know who collected data
+
+-   Tag number: unique plants identifiers are captured in Plant_ID, don't need tag numbers to distinguish between individuals at this point.
 
 ```{r}
-
+Size_2018_2019 = Size_2018_2019 |> 
+  select(-c(Observers, Tag_Number))
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
 
+write_csv(Size_2018_2019, 'RelandscapingDataClean/Size_Primary.csv')
+save(Size_2018_2019, file = 'RelandscapingDataClean/Size_Primary.Rdata')
 ```
