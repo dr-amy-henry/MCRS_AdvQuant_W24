@@ -4,9 +4,9 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Exploratory Analysis: FILL IN YOUR VARIABLE HERE
+## Relandscaping Exploratory Analysis: Thomas
 
-Winter 2024 - MCRS Advanced Quantitative Methods Class Project
+## Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
 Team #:
 
