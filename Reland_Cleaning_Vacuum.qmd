@@ -82,5 +82,7 @@ etc.
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
+write_csv(Vacuum_Arthropods, 'RelandscapingDataClean/Vacuum_Primary.csv')
 
+save(Vacuum_Arthropods, file = 'RelandscapingDataClean/Vacuum_Primary.Rdata')
 ```
