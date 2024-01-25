@@ -1,0 +1,332 @@
+---
+title: "CommunityDiversityIndices_Clusters_2023"
+format: html
+author: Amy Henry
+date modified: 11/30/2023
+editor: visual
+---
+
+# Analyzing Community Diversity Data
+
+So far we have mostly analysed data for which we have one response variable, and usually a fairly simple one that is discrete or quantitative and measurable in some way. Sometimes we've had to transform our measured data in order to make a new variable that better represents the underlying pattern in the system we're trying to get at. Some examples:
+
+-   Using owl limpet shell length to estimate body mass
+
+-   Calculating log response ratios to compare the relative response of different plant species in the same experiment
+
+-   Calculating proportions or ratios
+
+One of the most frequently collected type of data in ecology is on ecological communities. Describing the diversity of ecosystems is challenging because communities are made up of many species all with their own abundances. One way that we can make sense of community diversity is by calculating metrics that summarize something essential about the system that we would like to measure. For example:
+
+-   Species richness
+
+-   Relative abundance/percent cover of different species (evenness)
+
+    -   Shannon Diversity, Simpson Diversity
+
+-   Proportion of native vs. non-native species
+
+-   Abundance/proportion of different functional groups
+
+These summarizing metrics allow us to compare diversity between samples. There are also metrics that calculate how different or similar two or more communities are. This can be useful for things like identifying regions with exceptional diversity for conservation, or for evaluating a degraded ecosystem against against a reference site to set targets for restoration, then to determine when targets are reached. These types of analysis metrics include:
+
+-   Similarity/dissimilarity indices
+
+-   Cluster analysis
+
+Today we will examine a few data sets to practice calculating these metrics. Community data is often not "tidy", the way that other data we have worked with - it often is easier to summarize when data is shaped like a matrix.
+
+## Manipulating Community Diversity Data
+
+### Long/Tidy Data
+
+We might have information about a community in a single sample. This dataframe has a lot of information about the taxa present in the sample, as well as counts of each taxon.
+
+```{r}
+Freshies <- read.csv(file = "Freshwater_Invertebrates.csv")
+
+glimpse(Freshies)
+```
+
+You might instead have no abundance information at all, but have information about multiple samples. These data give vascular plant species names for samples from 10 sites from a survey in Shropshire, UK.
+
+```{r}
+plrich
+
+glimpse(plrich)
+```
+
+These data are currently in tidy format, or long form. There is one variable per column, one observation per row, one piece of data per cell. Tidy data is usually stored by R in objects called a data frame or a tibble, in which columns are all the same format.
+
+```{r}
+plrich |> class()
+Freshies |> class()
+```
+
+### Presence/Absence Matrix
+
+Another format that is often useful for analyzing communities is a species matrix. Notice how when you call this object, it doesn't display in the same format you usually see, with column names and data types. This is the same data as in the "plrich" object, but saved as a **matrix,** or a table. In a matrix, data can have both column names and row names, and the cells are usually all the same format, rather than being different formats per column.
+
+```{r}
+ps
+
+ps |> class()
+
+```
+
+In this format, species are on the columns, sites/samples are on the rows. In the cells, 0 means that species was not found in that sample, while 1 means it was present. This particular dataset does not have abundance information, only presence/absence.
+
+If our data comes in tidy, like it was in "plrich", we can convert it to a matrix using some of our tidyverse functions.
+
+```{r}
+plrich_wide <- plrich |> 
+  mutate(Present = 1) |> 
+  pivot_wider(names_from = Site, values_from = Present, values_fill = 0)
+
+plrich_wide
+
+```
+
+Neat! That made it wide, but R is storing it as a data frame still. Depending on the function we use in R, that may or may not be a problem.
+
+```{r}
+plrich_matrix <- plrich_wide[2:ncol(plrich_wide)] |> 
+  as.matrix()
+
+rownames(plrich_matrix) <- plrich_wide$Species
+
+plrich_matrix
+```
+
+To do it backwards:
+
+```{r}
+ps_long <- ps |> data.frame()
+
+colnames(ps_long) <- c("Species", "Site", "Present")
+
+ps_long
+```
+
+Matrix format is equally useful if we have abundance data too - instead of 0/1, we now have the abundance, either in counts or percent cover.
+
+```{r}
+psa
+```
+
+## Species Richness
+
+Species richness barely needs a special function - its just a matter of using a summarize function creatively. Let's practice finding species richness for each site in our various data frame shapes.
+
+```{r}
+Freshies |> nrow()
+```
+
+```{r}
+ps |> colSums()
+```
+
+```{r}
+plrich |> 
+  group_by(Site) |> 
+  count()
+```
+
+```{r}
+psa |> 
+  pivot_longer(names_to = "Site", values_to = "Abund", cols = 2:ncol(psa)) |> 
+  filter(Abund > 0) |> 
+  group_by(Site) |> 
+  count()
+
+psa |> 
+  mutate_all(~ case_when(. > 0 ~ 1, . == 0 ~ 0)) |> 
+  colSums()
+```
+
+## Diversity Indices
+
+Once you have abundance data, its nice to use it in addition to the species richness to compare based on evenness as well.
+
+We are going to use some functions from the R package "vegan" to compute our diversity indices. While it is very convenient, we have to pay attention to the shape of our data when we input it to these functions so they will give us what we expect.
+
+### Simpson Diversity
+
+Simpson's D is a diversity index that ranges from 0 to 1. The function to calculate it takes a vector of abundances as the input.
+
+```{r}
+# the 
+inv_d <- diversity(Freshies$Count, index = "simpson")
+
+inv_d
+```
+
+How do we interpret this? It's functionally not too useful unless we're comparing to another site/dataset.
+
+### Shannon-Weaver-Wiener Diversity
+
+Shannon diversity varies from 0 with no upper limit. higher = higher diversity. In a highly diverse (and evenly distributed) system, an unknown individual could belong to any species, leading to a high uncertainty in predictions of its identity. In a less diverse system dominated by one or a few species, it is easier to predict the identity of unknown individuals and there is less uncertainty in the system.
+
+```{r}
+inv_shan <- diversity(Freshies$Count, index = "shannon")
+
+inv_shan
+```
+
+What if we have many samples that we want to calculate, so we can compare? We can also give it a whole dataset in matrix format and it can figure out what to do. The MARGIN argument tells it whether to compute it with the columns or rows as the grouping factor.
+
+```{r}
+diversity(psa, index = "shannon", MARGIN = 2)
+
+```
+
+## Similarity Indices
+
+Comparing diversity indices is just one way to compare, but as we saw in class, you can have the same Shannon diversity index for two samples, but they might have completely different composition of species.
+
+Similarity indices quantify how much overlap or difference there is in community composition.
+
+### Presence/Absence Community Similarity
+
+This data set measured a unique measure of community - the fruits that make up the diet of three species of fruivorous birds called hornbills (GH, WH and OPH). Do these hornbills all eat different fruits, to avoid competition? Or do they have a lot of overlap and are all dietary generalists?
+
+![](images/oriental-pied-hornbill-140518-116eos1d-fy1x7003.jpg.webp){width="300"}
+
+On the rows is the fruit species, and the columns are the hornbill species.
+
+-   GH = Great Hornbill
+-   OPH = Oriental Pied Hornbill
+-   WH = Wreathed Hornbill
+
+```{r}
+hornbill
+```
+
+To use this particular function, each row should be a sample/community - so each species (being a sample) needs to have its own row. We can use the t() function to transpose the data.
+
+```{r}
+fruit <- t(hornbill)
+```
+
+#### Jaccard Index
+
+The Jaccard index measures similarity in communities with presence/absence data only. Since this function from the vegan package calculates dissimilarity by default, we subtract the output from 1 to get similarity.
+
+A similarity of 1 would be perfect overlap, and similarity of 0 would mean nothing shared.
+
+```{r}
+1 - vegdist(fruit, method = "jaccard")
+
+#Second way to calculate it, same output, just using Base R function instead of the vegan one.
+1 - dist(fruit, method = "binary")
+
+```
+
+The output is a matrix - the samples (hornbill species) are on both the rows and the columns, and where they intersect is the pairwise similarity between those two species. What can we take away from this one?
+
+-   WH and OPH are quite different- they only share a few fruits in their diet and may be more specialized.
+
+-   GH overlaps a little more with both WH and OPH and may be more of a generalist.
+
+#### Bray-Curtis
+
+Bray-Curtis (aka, Sørenson) index of similarity uses same presence/absence data as Jaccard, but uses slightly different calculations. The general pattern is the same though, so choosing which to use depends on what's customary for your application.
+
+```{r}
+1 - vegdist(fruit, method = "bray")
+```
+
+### Dendrograms and visualizing similarity with clustering
+
+Let's revisit our plant dataset.
+
+```{r}
+ps
+```
+
+The sites in our plant data set are coded, but the first letter stands for the site, which we'll pretend are:
+
+-   M = Mordor
+-   S = Shire
+-   P = Pelennor
+
+The second letter is for whether the plot is at lower (L) or upper (U) elevation on a slope. The number is a replicate at those sites.
+
+What are our predictions for which communities might be most similar?
+
+1.  The replicates within a site and elevation should be most similar
+2.  The upper plots will have more in common with each other across sites than the lower plots because they share environmental conditions OR
+3.  The sites will have more in common regardless of elevation.
+
+```{r}
+ps
+ps.jac <- dist(t(ps), method = "binary")
+ps.jac
+```
+
+That's a lot more difficult to interpret than the one with only three values! It'll be easier with a visual. This particular kind of plot is easier to make with Base R commands instead of GGplot.
+
+```{r}
+ps.hc <- hclust(ps.jac)
+
+plot(ps.hc)
+```
+
+Which of our hypotheses above were correct?
+
+-   The
+
+### Abundance
+
+Similar to above, there are different algorithms that can take into account the relative abundance of taxa in a community instead of just presence absence data.
+
+There are several measures of dissimilarity - like the Jaccard/Bray-Curtis, they mostly come out with the same results - different ones are just used more commonly in different applications. The two I have seen most frequently in ecology are Euclidean and Bray-Curtis/Sørenson
+
+Let's try it on this data set about ant communities.
+
+This data set shows the abundance of different species of ants found in two different soil types (red, r, and black, b) and under different fire regimes (Hoffman 2003).
+
+-   `E2` = burnt every 3yr with grazing early (May)
+
+-   `E3` = burnt, spelled & burnt in 2 successive yr
+
+-   `L2` = burnt every 3yr with late grazing (Oct)
+
+-   `L3` = burnt, spelled , burnt in 2 successive yr
+
+-   `U` = unburnt control
+
+The samples are on the columns and species on the rows in this data frame.
+
+```{r}
+ants
+
+antfire <- t(ants) # transpose switches it so it works with our distance functions. 
+
+```
+
+#### Euclidean
+
+Euclidean distance is the most akin to the parametric tests that we've been running this quarter - The Euclidean distance d of two data cases (x~1~, x~2~) is defined as the square root of the sum of squared differences. This is mathematically intuitive and good for graphing, but a little difficult to compare since the scale will vary so much.
+
+```{r}
+dist(antfire, method = "euclidean")
+```
+
+#### Bray-Curtis/Sørenson
+
+Bray-Curtis works for both abundance data and presence/absence data. Bray-Curtis **dissimilarity ranges from 0 to 1**. If both samples share the same number of species, at the same abundance, their "dissimilarity" will equal zero. If they have absolutely no shared microbes, they will have maximum dissimilarity, i.e. 1.
+
+```{r}
+vegdist(antfire, method = "bray")
+```
+
+### Dendrogram Example #2: 
+
+What is a more powerful determinant of ant community, soil type or fire regime?
+
+```{r}
+d <- dist(antfire, method = "euclidean")
+h <- hclust(d)
+plot(h)
+```
