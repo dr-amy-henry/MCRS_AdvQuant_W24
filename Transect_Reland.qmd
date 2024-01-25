@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: Soil Moisture
+## Relandscaping Data Cleaning: Transect
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
@@ -107,6 +107,15 @@ colnames(TransectS18)[which(names(TransectS18) == "Turf")] <- "Previous Veg."
 ```{r}
 Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
 View(Transect)
+```
+
+#### Issue: Species/ground cover
+
+```{r}
+Transect$CodeCount <- nchar(Transect$`Species Code`)
+
+Transect$Plants <- ifelse(Transect$CodeCount == 6, "yes", "no")
+
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
