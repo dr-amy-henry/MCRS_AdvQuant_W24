@@ -1,5 +1,5 @@
 ---
-title: "Git Test Document"
+title: "title here title here title here title here"
 format: html
 editor: visual
 ---
@@ -9,5 +9,12 @@ This is a document to see how Git Push, Pull, and Merge works.
 Add your name to the document below. Only add your own name, not your teammates' names.
 
 1.  First name alphabetically
-2.  next name alphabetically
-3.  etc.
+2.  Janet
+3.  HELP
+4.  how does this look
+<<<<<<< HEAD
+5.  Adding something to number 5
+=======
+5.  applesauce
+6.  Dancing Queen!
+>>>>>>> 8479c6840cfa0f48a4d57b7f2006a9ffc6c52ab6
