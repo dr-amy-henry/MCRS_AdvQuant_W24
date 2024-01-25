@@ -117,6 +117,11 @@ Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
 Transect<-Transect|>
 slice(-179,-269,-385,-754,-959)
 #View(Transect)
+
+#adding column to identify if species codes are plants
+Transect$CodeCount <- nchar(Transect$`Species Code`)
+Transect$Plants <- ifelse(Transect$CodeCount == 6, "yes", "no")
+
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
