@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: Soil Moisture
+## Relandscaping Data Cleaning: Transects
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
