@@ -4,11 +4,10 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Exploratory Analysis: Kelsey
 
-## FILL IN YOUR VARIABLE HERE
+## Relandscaping Exploratory Analysis: Jazzmyn & Kelsey 
 
-Winter 2024 - MCRS Advanced Quantitative Methods Class Project
+## Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
 Team #:
 
