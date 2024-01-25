@@ -4,7 +4,8 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Exploratory Analysis: Jazzmyn
+
+## Relandscaping Exploratory Analysis: Jazzmyn & Kelsey 
 
 ## Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
