@@ -10,7 +10,7 @@ Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
 Team #: 3
 
-Team Members:
+Team Members:Tory, Jazz, and Kelsey
 
 ### Load Packages
 
