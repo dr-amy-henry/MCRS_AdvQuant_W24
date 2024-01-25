@@ -4,13 +4,11 @@ format: html
 editor: visual
 ---
 
-## Relandscaping Data Cleaning: FILL IN YOUR VARIABLE HERE
+## Relandscaping Data Cleaning: Vacuum
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #:
-
-Team Members:
+Team Members: Sully, Erin, Tom, Audrey
 
 ### Load Packages
 
@@ -32,21 +30,17 @@ Vacuum_RAW <- read_excel("RelandscapingData/Vacuum_‏‏‏‏‏‏‏‏‏�
 
 Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
 
-#### Data Frame #1: Changing dashes to underscores in sample name
+#### Data Frame #1: 
 
 ```{r}
-Vacuum_Arthropods <- Vacuum_RAW |>
-  mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_')) |> 
-  select(-c(photo, Date, `Date of sorting`, Tray, `ARCA code`, Cell, PlantRep, `Specific comments about specimen`, comments)) |> 
-  rename(
-    Sample_ID = `Sample ID`,
-    Size_mm = `size (mm)`
-  )
+# not applicable, no need to bind
 ```
 
 #### Data Frame #2: fill in and add as needed
 
 ```{r}
+
+# not applicable, omitting the metadata and just using the vacuum data
 ```
 
 #### Complete Raw Data
@@ -54,29 +48,32 @@ Vacuum_Arthropods <- Vacuum_RAW |>
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
+
+# not applicable, only one dataframe
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1:
+#### Issue #1: Changing dashes to underscores in sample name and column name
 
 ```{r}
 
-
+Vacuum_Arthropods <- Vacuum_RAW |>
+  mutate('Sample ID' = str_replace_all(`Sample ID`, "-", '_')) |> 
+  rename(
+    Sample_ID = `Sample ID`,
+    Size_mm = `size (mm)`
+  )
 ```
 
-#### Issue #2:
+#### Issue #2: Remove unnecessary columns names
 
 ```{r}
 
-```
-
-etc.
-
-```{r}
-
+Vacuum_Arthropods <- Vacuum_Arthropods |> 
+  select(-c(photo, Date, `Date of sorting`, Tray, `ARCA code`, Cell, PlantRep, `Specific comments about specimen`, comments))
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
