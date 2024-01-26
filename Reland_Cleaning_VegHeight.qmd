@@ -86,38 +86,62 @@ veg_jun18_mid$Notes <- as.character(0) #adds notes column, all values 0
 
 ```
 
+#### Data Frame #3: Winter 2019 Data
+
+```{r}
+veg_win19_mid <- veg_win19_raw |>
+    slice(2:198) |>
+  mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
+  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
+  mutate(Distance = as.numeric(Distance)) |> #reformat Distance
+  mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
+  mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
+  mutate(`Shrub Height (cm)` = as.numeric(`Shrub Height (cm)`)) |> #reformat shrub
+  mutate(`Tree Height (cm)` = as.numeric(`Tree Height (cm)`)) |> #reformat tree
+  
+  mutate_at(vars(- Date, Observers, `Previous Veg.`, `Transect ID`, Notes), ~ ifelse(is.na(.), 0, .)) |> # replaces NA with 0 (for some reason is including the notes column)
+  
+  mutate(Notes = as.character(Notes)) |>
+
+  rename_all(~ gsub(" ", "_", .)) #replaces spaces in columns with _
+
+colnames(veg_win19_mid) [colnames(veg_win19_mid) == "Previous_Veg."]  <- "Turf"
+colnames(veg_win19_mid) <- gsub("[()]", "", colnames(veg_win19_mid))
+
+##data frame cleaned, column names correctly formatted
+```
+
 #### Complete Raw Data
 
 Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
 
 ```{r}
-veg_comb <- bind_rows(veg_fall18_mid, veg_jun18_mid)
+#combine fall and june data
+veg_comb18 <- bind_rows(veg_fall18_mid, veg_jun18_mid)
+All_veg_data <- bind_rows(veg_comb18, veg_win19_mid)|>
+  #rename colmun name Distance to have a unit measure
+  rename('Distance_m' = Distance)
 ```
 
 ### Cleaning
 
 Go through your raw data frame column by column to find and correct issues.
 
-#### Issue #1: Turf ID has "\_" and a space in the object name
+#### Issue #1: Reformat Variable Names
 
 ```{r}
-
-```
-
-#### Issue #2: Distance does not have a measurement and increases by one count
-
-```{r}
-
-```
-
-etc.
-
-```{r}
-
+#create a new df to save changes
+Veg_Final <- All_veg_data |>
+  #replace underscore with space
+  mutate(Transect_ID = str_replace(Transect_ID, "_", " ")) |>
+  #gsub replaces patterns in Transect_ID column. It looks for "Turf" followed by one or more digits ('(\\d+)') and replaces it with "Turf" followed by the same digits. Changes "Turf1" to "Turf 1" and so on.
+  mutate(Transect_ID = gsub("Turf(\\d+)", "Turf \\1", Transect_ID)) |>
+  #The above comment does the same with No Turf.
+  mutate(Transect_ID = gsub("No Turf(\\d+)", "No Turf \\1", Transect_ID))
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
-
+write.csv(Veg_Final, "VegHeight_Primary.csv", row.names=FALSE)
 ```
