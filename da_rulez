@@ -1,0 +1,4 @@
+commit changes to files only once you have finished a significant portion of code.
+pull before pushing changes to ensure that you are up to date with your respective branch.
+give others a heads up that you are merging your branch with main (when relevant). this ensures that unexpected changes do not occur and create surprises.
+if multiple people are working on the same file, clarify which chunks are being worked by whom. this prevents merge errors.
