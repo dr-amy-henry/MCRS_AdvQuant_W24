@@ -9,19 +9,24 @@ editor: visual
 
 Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #: *Enter here*
+Team #: 4
 
-Team Members: *Fill in your names here*
+Team Members: Cherry, Janet, Katelin
 
 #### Load Packages
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+library()
 
 ```
 
 #### Import your Primary file from your saved .Rdata
 
 ```{r}
+carbonflux <-read.csv("CarbonFlux_Primary.csv")
+height <-read.csv("VegHeight_Primary.csv")
 
 ```
 
@@ -39,16 +44,42 @@ Never save over your Primary file. While you are playing around, only make edits
 
 Once you have something good, show it to your teammates and you can agree to add it (by pasting into the chunk below) to your shared Team Analysis. The team member who updates the Team Analysis should then merge their branch with the master, and all teammates should do a fresh "pull", which will merge the new changes to your current working version. (if this is confusing, ask us for help)
 
-#### Team Analysis
+#### Team Member #1 Analysis
 
 ```{r}
+#take the average CO2 for the 240 second readings for Dark and Light cycles and group by native/non native
+mean_cf <- carbonflux %>%
+  group_by(Treatment,CycleType) %>%
+  summarize(meannative = mean(CO2_ppm)) %>%
+  rename(AvgCO2 = meannative)
 
+#two-way anova
+#cf_aov <-summary(aov(CO2_ppm ~ Treatment + CycleType, data = carbonflux))
+#cf_aov <-summary(aov(AvgCO2 ~ Treatment + CycleType, data = mean_cf))
 ```
 
-#### Team Member #1 Workspace (rename)
+#### Team Member #2 Analysis
+
+```{r}
+```
+
+#### Team Member #3 Analysis
+
+```{r}
+```
+
+#### Team Member #1 Workspace - Carbon Flux
 
 ```{r}
 
+#Grouped barplot
+ggplot(mean_cf, aes(x=Treatment, y=AvgCO2, fill= CycleType)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title="CO2 in Native vs. Nonnative Species with Dark vs. Light Conditions",
+        x ="Plant Communities", y = "Average CO2", fill = "Light Cycle")+
+  scale_fill_manual(values=c("Green4", "Yellow2"))+
+  theme_classic() + 
+  scale_y_continuous(limit = c(0,500),expand = expansion(mult = 0, add = 0))
 ```
 
 #### Team Member #2 Workspace (rename)
