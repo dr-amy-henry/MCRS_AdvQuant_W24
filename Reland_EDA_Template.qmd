@@ -1,6 +1,7 @@
 ---
 title: "Relandscaping Analysis Template"
 format: html
+author: Amy King-Henry
 editor: visual
 ---
 
@@ -12,9 +13,9 @@ editor: visual
 
 ## Winter 2024 - MCRS Advanced Quantitative Methods Class Project
 
-Team #:
+Team #: *Enter here*
 
-Team Members:
+Team Members: *Fill in your names here*
 
 #### Load Packages
 
