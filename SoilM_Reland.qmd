@@ -76,3 +76,16 @@ view(Moist1)
 write.csv(Moist1, "RelandscapingData/MOIST_Primary.csv", row.names = FALSE)
 save(Moist1, file="RelandscapingData/MOIST_Primary.RData")
 ```
+
+```{r}
+#Jazz EDA
+
+```
+
+```{r}
+#Tory EDA
+```
+
+```{r}
+#Kelsey EDA
+```
