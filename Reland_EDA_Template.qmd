@@ -64,10 +64,10 @@ mean_cf <- carbonflux %>%
 #take the average of tree, shrub, grass, and forb height data for Turf and No Turf and group by transect ID
 mean_vh <- vegheight |>
   group_by(Transect_ID, Turf) |>
-  summarize(AvgGrass = mean(Grass_Height_cm),
-            AvgForb = mean(Forb_Height_cm),
-            AvgShrub = mean(Shrub_Height_cm),
-            AvgTree = mean(Tree_Height_cm))
+  summarize(AvgGrass_cm = mean(Grass_Height_cm),
+            AvgForb_cm = mean(Forb_Height_cm),
+            AvgShrub_cm = mean(Shrub_Height_cm),
+            AvgTree_cm = mean(Tree_Height_cm))
 ```
 
 #### Team Member #3 Analysis
@@ -94,7 +94,7 @@ ggplot(mean_cf, aes(x=Treatment, y=AvgCO2, fill= CycleType)) +
 ```{r}
 
 # Reshape the data into long format
-mean_vh_long <- pivot_longer(mean_vh, cols = c(AvgGrass, AvgShrub, AvgForb, AvgTree), names_to = "Vegetation_Type", values_to = "Value")
+mean_vh_long <- pivot_longer(mean_vh, cols = c(AvgGrass_cm, AvgShrub_cm, AvgForb_cm, AvgTree_cm), names_to = "Vegetation_Type", values_to = "Value")
 
 # Plot
 ggplot(mean_vh_long, aes(x = Transect_ID, y = Value, fill = Turf)) + 
@@ -102,7 +102,7 @@ ggplot(mean_vh_long, aes(x = Transect_ID, y = Value, fill = Turf)) +
   # Separate panels for each vegetation type
   facet_wrap(~Vegetation_Type, scales = "free_y") +
   labs(title="Average Vegetation In Turf vs No Turf",
-        x ="Transect ID", y = "Average Vegetation", fill = "Turf")+
+        x ="Transect ID", y = "Average Vegetation (cm)", fill = "Turf")+
   scale_fill_manual(values=c("Pink", "Purple"))+
   theme_classic() + 
   scale_y_continuous(limit = c(0,40),expand = expansion(mult = 0, add = 0))
