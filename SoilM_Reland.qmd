@@ -84,6 +84,24 @@ save(Moist1, file="RelandscapingData/MOIST_Primary.RData")
 
 ```{r}
 #Tory EDA
+#load color
+library(ggplot2)
+#Question: Do the species have different Soil Moisture VWC(volumetric water content)?
+#adjust Canopy1_VWC so its numeric
+moist2<-transform(Moist1,Canopy1_VWC=as.numeric(Canopy1_VWC))
+sapply(moist2, mode)
+
+#COLORS
+customcolors <- c("#556B2F","#FFB90F")
+
+#plot as boxplot
+plotCanVWC.Species <-ggplot(moist2, 
+  aes( x =Plant.Species,y =Canopy1_VWC, fill=Treatment))+
+  geom_boxplot()
+
+p<-plotCanVWC.Species + scale_fill_manual(values = customcolors)
+print(p+labs(y="Soil Moisure(VWC)",x="Species"))
+
 ```
 
 ```{r}
