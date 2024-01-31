@@ -88,4 +88,24 @@ save(Moist1, file="RelandscapingData/MOIST_Primary.RData")
 
 ```{r}
 #Kelsey EDA
+# how does the VWC for btwn plots differ between blocks
+  
+Moist1$'Btwn1_VWC' <- as.numeric(Moist1$'Btwn1_VWC')
+Moist1$'Btwn2_VWC' <- as.numeric(Moist1$'Btwn2_VWC')
+
+
+
+Moist1$Btwn_VWC = ((Moist1$Btwn1_VWC + Moist1$Btwn2_VWC)/2)
+
+
+MoistPlot <- ggplot(Moist1, aes(x = `Plant Species`, y = Btwn_VWC, fill = Treatment)) + 
+    geom_boxplot() +
+  facet_grid(.~Date)
+
+
+MoistPlot
+  #geom_bar(stat = "identity") +
+  #ggtitle("Bar Plot Example") +
+  #ylab("Values") +
+  #xlab("Categories")
 ```
