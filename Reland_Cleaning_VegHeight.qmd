@@ -24,12 +24,20 @@ library(readxl)
 
 ```{r}
 
-veg_fall18_raw <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
+veg_fall18_raw1 <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 3, col_types = "text")
+veg_fall18_raw2 <- read_excel("Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 2, col_types = "text")
 
-veg_jun18_raw <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
+veg_jun18_raw1 <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =3, col_types = "text")
+veg_jun18_raw2 <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet =2, col_types = "text")
 
-veg_win19_raw <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",
-sheet =2, col_types = "text")
+veg_win19_raw1 <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",sheet =2, col_types = "text")
+veg_win19_raw2 <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",sheet =1, col_types = "text")
+
+veg_fall18_raw <- merge(veg_fall18_raw1, veg_fall18_raw2)
+veg_jun18_raw <- merge(veg_jun18_raw1, veg_jun18_raw2)
+veg_win19_raw <- merge(veg_win19_raw1, veg_win19_raw2)
+
+#bind sheet 2 & 3 then add species code to define native vs non native
 ```
 
 ### Create Primary
