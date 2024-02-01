@@ -134,14 +134,14 @@ write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
 save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 ```
 
-```{r}#Kelsey}
-
+```{r}
+#Kesley
 ```
 
-```{r}Jazz}
-
+```{r}
+#Jazz
 ```
 
-```{r}Tory}
-
+```{r}
+#Tory
 ```
