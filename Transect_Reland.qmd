@@ -1,0 +1,135 @@
+---
+title: "Transect Reland Data Cleaning"
+format: html
+editor: visual
+---
+
+## Relandscaping Data Cleaning: Transects
+
+Winter 2024 - MCRS Advanced Quantitative Methods Class Project
+
+Team #: 3
+
+Team Members:Tory, Jazz, and Kelsey
+
+### Load Packages
+
+```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(lubridate)
+
+```
+
+### Import Data Files
+
+```{r}
+
+# Transect data
+
+TransectF18 <- read_excel("RelandscapingData/Transect_VegHeight_Fall 2018 GH Relandscaping Transect Data.xlsx", sheet = 2) |> 
+  slice(-1)|>
+  slice(1:217)
+  
+#view(TransectF18) 
+
+TransectS18 <- read_excel("RelandscapingData/Transect_VegHeight_GH Relandscaping Transect Data_Jun2018.xlsx", sheet = 2 )|>
+  slice(1:505)
+  
+#view(TransectS18)
+
+TransectW19 <- read_excel("RelandscapingData/Transect_Winter 2019 GH Relandscaping Transect Data.xlsx") |> 
+  slice(-1)|>
+  slice(1:280)
+  #make unkowns 6 character species code, and D(CYNDAC) a 6 character code
+conditions <- c("UNK 1", "UNK 2","UNK 3","UNK 4","D(CYNDAC)")
+replacement_values <- c("UNK(1)", "UNK(2)","UNK(3)","UNK(4)","CYNDAC")
+TransectW19$`Species Code` <- replace(TransectW19$`Species Code`, TransectW19$`Species Code` %in% conditions, replacement_values)
+#view(TransectW19) 
+
+
+
+
+
+```
+
+### Create Primary
+
+Reformat the data from each of your imported spreadsheets to have common columns and column formats so you can bind them into one object.
+
+#### Complete Raw Data
+
+Bind your cleaned data frames together into one object. Clean up any remaining column names or formats.
+
+```{r}
+# moved down for cleaning needed prior to binding
+```
+
+### Cleaning
+
+Go through your raw data frame column by column to find and correct issues.
+
+#### Issue #1: correct date since its weird
+
+```{r}
+# fixing the date
+
+TransectW19 <-TransectW19|>
+  mutate(Date=
+as.Date(as.numeric(Date), origin = "1899-12-30"))
+
+TransectF18 <-TransectF18|>
+  mutate(Date=
+as.Date(as.numeric(Date), origin = "1899-12-30"))
+
+```
+
+#### Issue #2:
+
+```{r}
+# S18 siteID is a num needs to be a character
+TransectS18$'Site ID' <- as.character(TransectS18$'Site ID')
+
+glimpse(TransectS18)
+
+## S18 distance is a num needs to be a character
+
+TransectS18$'Distance' <- as.character(TransectS18$'Distance')
+
+glimpse(TransectW19)
+
+```
+
+#### Issue #3: Updating column names
+
+```{r}
+# TransectS18 has col name "Turf" but other dataframes have "Previous Veg."
+colnames(TransectS18)[which(names(TransectS18) == "Turf")] <- "Previous Veg."
+```
+
+#### Complete Raw Data
+
+```{r}
+Transect <- bind_rows(TransectF18, TransectS18, TransectW19)
+#View(Transect)
+#remove data collected on the roads
+Transect<-Transect|>
+slice(-179,-269,-385,-754,-959)
+#View(Transect)
+
+#adding column to identify if species codes are plants
+Transect$CodeCount <- nchar(Transect$`Species Code`)
+Transect$Plants <- ifelse(Transect$CodeCount == 6, "yes", "no")
+
+```
+
+### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
+
+```{r}
+# Kelsey 
+# turns data into a CSV file, we just replace Transect with whatever our final data set is named 
+
+write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
+save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
+```
