@@ -33,9 +33,9 @@ veg_jun18_raw2 <- read_excel("Transect_VegHeight_GH Relandscaping Transect Data_
 veg_win19_raw1 <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",sheet =2, col_types = "text")
 veg_win19_raw2 <-read_excel("Transect_Winter 2019 GH Relandscaping Transect Data.xlsx",sheet =1, col_types = "text")
 
-veg_fall18_raw <- merge(veg_fall18_raw1, veg_fall18_raw2)
-veg_jun18_raw <- merge(veg_jun18_raw1, veg_jun18_raw2)
-veg_win19_raw <- merge(veg_win19_raw1, veg_win19_raw2)
+veg_fall18_raw <- bind_rows(veg_fall18_raw1, veg_fall18_raw2)
+veg_jun18_raw <- bind_rows(veg_jun18_raw1, veg_jun18_raw2)
+veg_win19_raw <- bind_rows(veg_win19_raw1, veg_win19_raw2)
 
 #bind sheet 2 & 3 then add species code to define native vs non native
 ```
@@ -52,7 +52,6 @@ Reformat the data from each of your imported spreadsheets to have common columns
 veg_fall18_mid <- veg_fall18_raw |>
   slice(2:199) |> #remove sample row and all extra, empty data
   mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
-  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
   mutate(Distance = as.numeric(Distance)) |> #reformat Distance
   mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
   mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
@@ -77,7 +76,6 @@ colnames(veg_fall18_mid) <- gsub("[()]", "", colnames(veg_fall18_mid))
 veg_jun18_mid <- veg_jun18_raw |>
   slice(1:198) |>
   mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
-  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
   mutate(Distance = as.numeric(Distance)) |> #reformat Distance
   mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
   mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
@@ -100,7 +98,6 @@ veg_jun18_mid$Notes <- as.character(0) #adds notes column, all values 0
 veg_win19_mid <- veg_win19_raw |>
     slice(2:198) |>
   mutate(Date = as.Date(as.numeric(Date), origin = "1899-12-30", )) |> #reformat date
-  mutate(`Site ID` = as.numeric(`Site ID`)) |> #reformat Site ID
   mutate(Distance = as.numeric(Distance)) |> #reformat Distance
   mutate(`Grass Height (cm)` = as.numeric(`Grass Height (cm)`)) |> #reformat grass
   mutate(`Forb Height (cm)` = as.numeric(`Forb Height (cm)`)) |> #reformat forbs
@@ -145,7 +142,9 @@ Veg_Final <- All_veg_data |>
   #gsub replaces patterns in Transect_ID column. It looks for "Turf" followed by one or more digits ('(\\d+)') and replaces it with "Turf" followed by the same digits. Changes "Turf1" to "Turf 1" and so on.
   mutate(Transect_ID = gsub("Turf(\\d+)", "Turf \\1", Transect_ID)) |>
   #The above comment does the same with No Turf.
-  mutate(Transect_ID = gsub("No Turf(\\d+)", "No Turf \\1", Transect_ID))
+  mutate(Transect_ID = gsub("No Turf(\\d+)", "No Turf \\1", Transect_ID))|>
+  mutate(Site_ID = gsub("1", "Site 1", Site_ID))|>
+  mutate(Site_ID = gsub("2", "Site 2", Site_ID))
 ```
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
