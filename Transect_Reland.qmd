@@ -124,6 +124,15 @@ Transect$Plants <- ifelse(Transect$CodeCount == 6, "yes", "no")
 
 ```
 
+```{r}
+#fixing species codes and consolidate Unknowns
+unique(Transect$`Species Code`)
+```
+
+```{r}
+#joining species info here
+```
+
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
@@ -144,4 +153,9 @@ save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 
 ```{r}
 #Tory
+#Question:Did percent cover of different functional groups (or notable species) change from before planting to after planting? (i.e., was the restoration successful?) 
+#Do To
+#join species list so we can get n vs n
+#find percent cover 
+
 ```
