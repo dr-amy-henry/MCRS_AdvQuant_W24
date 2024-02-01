@@ -94,7 +94,7 @@ Moist1$'Btwn1_VWC' <- as.numeric(Moist1$'Btwn1_VWC')
 Moist1$'Btwn2_VWC' <- as.numeric(Moist1$'Btwn2_VWC')
 
 
-
+#making a new column for water consumption with the averqge of the Btwn1 and Btwn2 values 
 Moist1$Btwn_VWC = ((Moist1$Btwn1_VWC + Moist1$Btwn2_VWC)/2)
 
 
