@@ -79,6 +79,31 @@ save(Moist1, file="RelandscapingData/MOIST_Primary.RData")
 
 ```{r}
 #Jazz EDA
+#changing to numeric
+Moist1$Canopy1_VWC <- as.numeric(Moist1$Canopy1_VWC)
+Moist1$Canopy2_VWC <- as.numeric(Moist1$Canopy2_VWC)
+Moist1$Btwn1_VWC <- as.numeric(Moist1$Btwn1_VWC)
+Moist1$Btwn2_VWC <- as.numeric(Moist1$Btwn2_VWC)
+
+#averaging 
+Moist1$Canopy_VWC = (Moist1$Canopy1_VWC + Moist1$Canopy2_VWC) / 2
+Moist1$Btwn_VWC = (Moist1$Btwn1_VWC + Moist1$Btwn2_VWC) / 2
+Moist1$VWC = (Moist1$Canopy_VWC + Moist1$Btwn_VWC) / 2
+
+#plotting canopy
+Canopy <- ggplot(Moist1,  aes( x=Treatment, y=Canopy_VWC ) ) + geom_boxplot()
+
+#plotting between
+Btwn <- ggplot(Moist1,  aes( x=Treatment, y=VWC ) ) + geom_boxplot()
+
+#plotting overall average
+VWC <- ggplot(Moist1,  aes( x=Treatment, y=VWC ) ) + geom_boxplot()
+
+#exploring influence of canopy and between 
+Both <-ggplot(Moist1,  aes( x=Treatment, y=VWC ) ) + 
+  geom_boxplot() +
+  geom_jitter(aes(x=Treatment, y=Canopy_VWC), color="blue") +
+  geom_jitter(aes(x=Treatment, y=Btwn_VWC) , color="red")
 
 ```
 
