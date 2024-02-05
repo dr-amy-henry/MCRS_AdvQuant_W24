@@ -131,7 +131,11 @@ print(p+labs(y="Soil Moisure(VWC)",x="Species"))
 
 ```{r}
 #Kelsey EDA
+<<<<<<< HEAD
+# how does the VWC for btwn plots differ between blocks for the two dates given 
+=======
 # how does the VWC for btwn plots differ between blocks
+>>>>>>> 4063c64bdbf9254733ee44f3863bda7fa7fefe43
   
 Moist1$'Btwn1_VWC' <- as.numeric(Moist1$'Btwn1_VWC')
 Moist1$'Btwn2_VWC' <- as.numeric(Moist1$'Btwn2_VWC')
@@ -140,7 +144,11 @@ Moist1$'Btwn2_VWC' <- as.numeric(Moist1$'Btwn2_VWC')
 #making a new column for water consumption with the averqge of the Btwn1 and Btwn2 values 
 Moist1$Btwn_VWC = ((Moist1$Btwn1_VWC + Moist1$Btwn2_VWC)/2)
 
+<<<<<<< HEAD
+#plot the VWC for Btwn seperated by date and colored by native and non-native treatment  
+=======
 
+>>>>>>> 4063c64bdbf9254733ee44f3863bda7fa7fefe43
 MoistPlot <- ggplot(Moist1, aes(x = `Plant Species`, y = Btwn_VWC, fill = Treatment)) + 
     geom_boxplot() +
   facet_grid(.~Date)
@@ -151,4 +159,9 @@ MoistPlot
   #ggtitle("Bar Plot Example") +
   #ylab("Values") +
   #xlab("Categories")
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 4063c64bdbf9254733ee44f3863bda7fa7fefe43
 ```

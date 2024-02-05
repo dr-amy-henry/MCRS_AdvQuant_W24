@@ -130,8 +130,48 @@ unique(Transect$`Species Code`)
 ```
 
 ```{r}
-#joining species info here
+#Kelsey 
+
+#separating the plants into native and non-native
+  
+Transect$'Distance' <- as.numeric(Transect$'Distance')
+
+Transect <- Transect |>
+
+#Transects cross through both Native and NonNative treatments
+  
+#NOTURF_01 and NOTURF_02 -------------------------------------------------
+#Meters/Distance 1-10 - NonNative
+
+ mutate(Treatment = case_when(
+   
+    between(`Distance`, 1, 10) & `Previous Veg.` == 'No Turf' ~ 'NonNative',
+
+#Meters/Distance 11-20 - Native
+    between(`Distance`, 11, 20) & `Previous Veg.` == 'No Turf' ~ 'Native',
+
+#Meters/Distance 23-37 - Native
+    between(`Distance`, 23, 37) & `Previous Veg.` == 'No Turf' ~ 'Native',
+
+#Meters/Distance 39-57ish - NonNative
+    between(`Distance`, 39, 57) & `Previous Veg.` == 'No Turf' ~ 'NonNative',
+
+
+#TURF_01 or Turf1 and TURF_02 or Turf2 ---------------------------------------------------
+#Meters/Distance 1-20ish-  Native 
+    between(`Distance`, 1, 20) & `Previous Veg.` == 'Turf' ~ 'Native',
+
+#Meters/Distance 22-44 - NonNative
+    between(`Distance`, 22, 44) & `Previous Veg.` == 'Turf' ~ 'NonNative')) |>
+
+  
+#filter out the NA treatments 
+filter(!is.na(Treatment))
+
+
 ```
+
+
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
@@ -142,6 +182,7 @@ unique(Transect$`Species Code`)
 write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
 save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 ```
+
 
 ```{r}
 #Kesley
