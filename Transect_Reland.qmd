@@ -171,8 +171,6 @@ filter(!is.na(Treatment))
 
 ```
 
-
-
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
 ```{r}
@@ -182,7 +180,6 @@ filter(!is.na(Treatment))
 write.csv(Transect, "RelandscapingData/TRANSECT_Primary.csv", row.names = FALSE)
 save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 ```
-
 
 ```{r}
 #Kesley
@@ -194,6 +191,12 @@ save(Transect, file="RelandscapingData/TRANSECT_Primary.RData")
 
 ```{r}
 #Tory
+#fixing species codes and consolidate Unknowns
+#unique(Transect$`Species Code`)
+conditions <- c("UK(06)", "UNK(4)","UK(05)","UNK(1)","UK(01)","UK(03)","UNK(2)","UK(04)","UNK(3)","UK(02)")
+replacement_values <- c("UNKNOWN", "UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN", "UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN")
+Transect$`Species Code` <- replace(Transect$`Species Code`, Transect$`Species Code` %in% conditions, replacement_values)
+unique(Transect$`Species Code`)
 #Question:Did percent cover of different functional groups (or notable species) change from before planting to after planting? (i.e., was the restoration successful?) 
 #Do To
 #join species list so we can get n vs n
