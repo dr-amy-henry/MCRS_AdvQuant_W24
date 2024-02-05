@@ -132,28 +132,41 @@ unique(Transect$`Species Code`)
 ```{r}
 #Kelsey 
 
-#seperating the plants into native and non-native
-
-# Assuming your data frame is named df and the column is named 'your_column'
-Transect <- Transect |>
+#separating the plants into native and non-native
   
-  mutate(Native_Nonnative = case_when(
-    `Distance` > 10 & `Previous Veg.` == "No Turf" ~ "NonNative",
-    TRUE ~ as.character(Native_Nonnative) ) )
+Transect$'Distance' <- as.numeric(Transect$'Distance')
+
+Transect <- Transect |>
 
 #Transects cross through both Native and NonNative treatments
-#NOTURF_01 and NOTURF_02
+  
+#NOTURF_01 and NOTURF_02 -------------------------------------------------
 #Meters/Distance 1-10 - NonNative
+
+ mutate(Treatment = case_when(
+   
+    between(`Distance`, 1, 10) & `Previous Veg.` == 'No Turf' ~ 'NonNative',
+
 #Meters/Distance 11-20 - Native
+    between(`Distance`, 11, 20) & `Previous Veg.` == 'No Turf' ~ 'Native',
+
 #Meters/Distance 23-37 - Native
+    between(`Distance`, 23, 37) & `Previous Veg.` == 'No Turf' ~ 'Native',
+
 #Meters/Distance 39-57ish - NonNative
+    between(`Distance`, 39, 57) & `Previous Veg.` == 'No Turf' ~ 'NonNative',
 
 
-
-#TURF_01 or Turf1 and TURF_02 or Turf2
+#TURF_01 or Turf1 and TURF_02 or Turf2 ---------------------------------------------------
 #Meters/Distance 1-20ish-  Native 
-#Meters/Distance 22-44 - NonNative
+    between(`Distance`, 1, 20) & `Previous Veg.` == 'Turf' ~ 'Native',
 
+#Meters/Distance 22-44 - NonNative
+    between(`Distance`, 22, 44) & `Previous Veg.` == 'Turf' ~ 'NonNative')) |>
+
+  
+#filter out the NA treatments 
+filter(!is.na(Treatment))
 
 
 ```
