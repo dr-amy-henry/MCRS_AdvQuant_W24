@@ -130,8 +130,35 @@ unique(Transect$`Species Code`)
 ```
 
 ```{r}
-#joining species info here
+#Kelsey 
+
+#seperating the plants into native and non-native
+
+# Assuming your data frame is named df and the column is named 'your_column'
+Transect <- Transect |>
+  
+  mutate(Native_Nonnative = case_when(
+    `Distance` > 10 & `Previous Veg.` == "No Turf" ~ "NonNative",
+    TRUE ~ as.character(Native_Nonnative) ) )
+
+#Transects cross through both Native and NonNative treatments
+#NOTURF_01 and NOTURF_02
+#Meters/Distance 1-10 - NonNative
+#Meters/Distance 11-20 - Native
+#Meters/Distance 23-37 - Native
+#Meters/Distance 39-57ish - NonNative
+
+
+
+#TURF_01 or Turf1 and TURF_02 or Turf2
+#Meters/Distance 1-20ish-  Native 
+#Meters/Distance 22-44 - NonNative
+
+
+
 ```
+
+
 
 ### Save your cleaned and complete Primary data frame to .csv and .Rdata and save the file as VARIABLE_Primary.csv or similar.
 
