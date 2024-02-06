@@ -1,0 +1,186 @@
+---
+title: "Ordination"
+format: html
+editor: visual
+---
+
+# Ordination
+
+```{r}
+library(tidyverse)
+library(vegan)
+```
+
+```{r}
+load(file = "CERE.RData")
+```
+
+This dataset (moss), contains community abundance data of bryophytes(mosses) on different tree species in North Carolina.
+
+-   BN = *Betula nigra*
+-   LT = *Liriodendron tulipifera*
+-   PE = *Pinus echinata*
+-   PO = *Platanus occidentalis*
+-   PT = *Pinus taeda*
+-   QR = *Quercus rubra*
+-   QA = *Quercus alba*
+
+```{r}
+moss
+```
+
+How different are these communities from each other? We can calculate a Euclidean distance (imagine drawing a line segment in multi-dimensional space, the length of the line segment) between each pair of communities.
+
+```{r}
+
+# transposing the matrix gives us the samples on the rows. 
+t(moss)
+
+# dist function calculates that euclidean distance for us and gives us a pairwise distance matrix. The larger the number, the more different the communities are. 
+moss.eu <- dist(t(moss), method = "euclidean")
+moss.eu
+```
+
+One way that we have visualized these differences before is with a dendrogram, which helps to identify clusters.
+
+```{r}
+plot(hclust(moss.eu))
+```
+
+This is pretty one-dimensional though, and while it tells us that pines host different mosses than the other trees, we don't know some of the more detailed ways in which they differ.
+
+## Classical MDS, aka, principal coordinates analysis (PCoA)
+
+With indirect gradient analysis, we are using only the species by sample data - we aren't giving the model any information about the environment (e.g., the tree species here) to make any guesses. By looking at just the compositional differences, we are trying to identify potential gradients.
+
+We can then later "map" the environmental information onto our plots.
+
+This type of analysis uses the dissimilarity matrix we calculated before as a starting point and reduces the number of dimensions from n (all moss species across all samples) to 2 (which is easier to plot). It preserves the relationships by maximizing the correlation between the original dissimilarity matrix and the next 2-dimensional one.
+
+```{r}
+moss.pco <- cmdscale(moss.eu, k = 2)
+
+moss.pco # the output is just coordinates in two dimensional space
+
+# mmake it a data frame so we can use ggplot on it
+moss.pco.gg <- data.frame(moss.pco) |> mutate(site = rownames(moss.pco))
+
+ggplot(moss.pco.gg) + 
+  aes(x = X1, y = X2, label = site) + 
+  geom_text() + 
+  labs(x = "PCoA1", y = "PCoA2")
+
+
+```
+
+That looks pretty different from our dendrogram, but it also is clearly how different BN2 is from the other samples. PCoA1 and PCoA2 are capturing different kinds of variation in our samples.
+
+That arch shape is pretty common - We can try another data set that has a more well-defined environmental gradient: plant species in a bog with varying pH.
+
+```{r}
+hsere.biol
+```
+
+```{r}
+hsere.bc <- vegdist(t(hsere.biol), method = "bray")
+hsere.pco <- cmdscale(hsere.bc, eig = TRUE)
+scores(hsere.pco)
+
+hsere.pco.gg <- data.frame(hsere.pco) |> mutate(sample = rownames(hsere.pco))
+
+ggplot(hsere.pco.gg) + 
+  aes(x = X1, y = X2, label = sample) + 
+  geom_text() + 
+  labs(x = "PCoA1", y = "PCoA2")
+
+```
+
+We can see our Goodness of Fit (how well do these two dimensions capture the multi-dimensional distances?)
+
+```{r}
+hsere.pco$GOF
+
+#adding more dimensions increases the variability it captures. 
+cmdscale(hsere.bc, eig = TRUE, k = 3)$GOF
+```
+
+## Non-Metric Multidimensional Scaling
+
+I mentioned that the benefit is getting to see differences in multiple dimensions - let's develop th\
+ose a little more and see if there are particular community species that drive those differences in samples.
+
+```{r}
+ridge.biol
+# species information
+ridge <- t(ridge.biol)
+# environmental information
+env <- t(ridge.env) 
+```
+
+```{r}
+rankindex(env, ridge)
+```
+
+```{r}
+ridge.nmds <- metaMDS(ridge, distance = "gower")
+```
+
+```{r}
+plot(ridge.nmds, type = "t", display = "sites")
+
+plot(ridge.nmds, type = "p", display = c("site", "species"))
+
+scores(ridge.nmds)
+
+Site_scores <- data.frame(scores(ridge.nmds)$sites) |> mutate(Site = rownames(scores(ridge.nmds)$sites))
+
+Species_scores <- data.frame(scores(ridge.nmds)$species) |> mutate(Species = rownames(scores(ridge.nmds)$species))
+
+ggplot() + 
+  geom_point(data = Site_scores, aes(x = NMDS1, y = NMDS2), color = "red", cex = 3) + 
+  geom_text(data = Species_scores, aes(x = NMDS1, y = NMDS2, label = Species))
+
+
+```
+
+### What about with one of our data sets? 
+
+```{r}
+Quads_Reland_temp <- Quads_Reland |> 
+    filter(Date > mdy("01/01/2019")) |> 
+  mutate(Index = paste(Date,Treatment,Quad,Block)) 
+
+Quads_Reland_matrix_withindex <- Quads_Reland_temp |>
+  select(SpeciesCode, Count, Index) |> 
+  pivot_wider(
+    names_from = SpeciesCode, values_from = Count, values_fill = 0) 
+
+Quads_Reland_matrix <- Quads_Reland_matrix_withindex |>
+  select(
+    #-`No Species Present`,
+    -Index)
+
+Quads_Reland_index <- Quads_Reland_temp |> select(Index, Date,Treatment,Quad,Block) |> distinct() |> right_join(Quads_Reland_matrix_withindex, by = "Index")
+
+Quads_Reland_matrix 
+Quad_nmds <- metaMDS(Quads_Reland_matrix[,-1], k=2)
+
+stressplot(Quad_nmds)
+
+plot(Quad_nmds)
+```
+
+```{r}
+ordiplot(Quad_nmds,type="n")
+orditorp(Quad_nmds,display="species",col="red",air=0.01)
+orditorp(Quad_nmds,display="sites",cex=1.25,air=0.01)
+```
+
+```{r}
+Quad_mds_index <- bind_cols(Quads_Reland_index, Quad_nmds$points)
+
+
+ggplot(Quad_mds_index) + 
+  aes(x = MDS1, y = MDS2, color = Treatment) + 
+  geom_point()
+```

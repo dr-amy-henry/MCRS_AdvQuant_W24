@@ -1,0 +1,111 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+## Dealing with multivariate data
+
+```{r}
+library(tidyverse)
+library(vegan)
+library(lme4)
+library(lmerTest)
+library(PerformanceAnalytics)
+
+NBWQ <- read_csv(file = "NBWQ_Combined_RAW_Data.csv")
+```
+
+These data were collected by a capstone team two years ago on water quality indicators in Newport Bay at ten locations with seagrass beds. Seagrass beds were characterized as stable or transitional depending on their history (were they there consistently the last ten years or had they disappeared and come back intermittently?). The team hypothesized that water quality could be to blame where seagrass was intermittent.
+
+```{r}
+View(NBWQ)
+
+names(NBWQ)
+```
+
+Where to even begin? We can start to make some hypotheses.
+
+-   How might dissolved oxygen impact seagrass?
+
+    -   Anoxia might be stressful for seagrass.
+
+-   How might temperature impact seagrass?
+
+    -   Elevated temperature might be stressful.
+
+-   How might turbidity impact seagrass?
+
+    -   More turbid (cloudy) water might prevent seagrass from getting enough light.
+
+-   How might depth affect seagrass?
+
+    -   Deeper water might also prevent seagrass from getting enough light, but it might be less affected by higher temperatures.
+
+We can start our analysis by testing these relationships one by one.
+
+```{r}
+# is DO different between stable and transitional beds? 
+NBWQ |> 
+  ggplot(aes(x = Bed_Stability, y = `DO_%`)) + 
+  geom_boxplot()
+
+model <- lmer(`DO_%` ~ Bed_Stability + (1|Site), data = NBWQ)
+summary(model)
+
+## Maybe! 
+```
+
+```{r}
+# is temperature different between stable and transitional beds? 
+NBWQ |> 
+  ggplot(aes(x = Bed_Stability, y = `Temp_C`)) + 
+  geom_boxplot()
+
+model <- lmer(`Temp_C` ~ Bed_Stability + (1|Site), data = NBWQ)
+summary(model)
+
+## Probably not! 
+
+```
+
+If we want to approach this like a multiple regression, why not do both at once?
+
+```{r}
+NBWQ_01 <- NBWQ |> mutate(Bed_Stability_01 = case_when(
+   Bed_Stability == "Transitional" ~ 0, 
+   Bed_Stability == "Stable" ~ 1
+ ))
+
+model1 <- glm(Bed_Stability_01 ~ Temp_C * `DO_%`, data = NBWQ_01)
+summary(model1)
+
+```
+
+Uh oh... remembering something from my oceanography class. Are Temp and DO correlated? We might run into problems with collinearity.
+
+![](https://www.fondriest.com/environmental-measurements/wp-content/uploads/2013/10/dissolvedoxygen_fresh-salt.jpg)
+
+```{r}
+NBWQ |> 
+  ggplot(aes(x = Temp_C, y = `DO_%`)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+
+model <- lm(`DO_%` ~ Temp_C, data = NBWQ)
+summary(model)
+
+## They should be! 
+```
+
+There are so many variables! This is going to take forever! We can do this more quickly with a correlation matrix.
+
+```{r warning=FALSE}
+library("PerformanceAnalytics")
+my_data <- NBWQ |> select(10,15,17,22,24,26,28,29,30,34)
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+```
+
+A lot to process here.
+
+A multivariate approach instead might be wise with all these correlated predictor variables.
