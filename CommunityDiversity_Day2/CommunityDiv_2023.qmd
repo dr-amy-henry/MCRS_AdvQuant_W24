@@ -90,7 +90,7 @@ plrich_wide
 Neat! That made it wide, but R is storing it as a data frame still. Depending on the function we use in R, that may or may not be a problem.
 
 ```{r}
-plrich_matrix <- plrich_wide[2:ncol(plrich_wide)] |> 
+plrich_matrix <- plrich_wide[,2:ncol(plrich_wide)] |> 
   as.matrix()
 
 rownames(plrich_matrix) <- plrich_wide$Species
@@ -155,6 +155,10 @@ We are going to use some functions from the R package "vegan" to compute our div
 Simpson's D is a diversity index that ranges from 0 to 1. The function to calculate it takes a vector of abundances as the input.
 
 ```{r}
+
+install.packages("vegan")
+library(vegan)
+
 # the 
 inv_d <- diversity(Freshies$Count, index = "simpson")
 
@@ -177,6 +181,8 @@ What if we have many samples that we want to calculate, so we can compare? We ca
 
 ```{r}
 diversity(psa, index = "shannon", MARGIN = 2)
+
+diversity(psa, index = "shannon", MARGIN = 1)
 
 ```
 
@@ -321,7 +327,7 @@ Bray-Curtis works for both abundance data and presence/absence data. Bray-Curtis
 vegdist(antfire, method = "bray")
 ```
 
-### Dendrogram Example #2:
+### Dendrogram Example #2: 
 
 What is a more powerful determinant of ant community, soil type or fire regime?
 
