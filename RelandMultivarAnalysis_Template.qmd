@@ -15,14 +15,17 @@ library(factoextra)
 
 ## Arthropods
 
-Thank you to the team for cleaning up the vacuum data so well! Let's directly load their cleaned up file. 
+Thank you to the team for cleaning up the vacuum data so well! Let's directly load their cleaned up file.
+
 ```{r}
 load(file = "Vacuum_Primary.Rdata")
 Vacuum_Arthropods
 ```
+
 ### Data Prep: Make the species x sample matrix (matrices)
 
 The most unique column here (since arthropods are very difficult to ID to species), is going to be code.
+
 ```{r}
 Wide <- Vacuum_Arthropods |> 
   select(Sample_ID, code, count) |> 
@@ -32,9 +35,10 @@ Bug_Matrix <- as.matrix(Wide[,-1])
 rownames(Bug_Matrix) <- Wide$Sample_ID
 ```
 
-In playing around with this data and multivariate methods, I found a few modifications to this dataset to be useful: 
+In playing around with this data and multivariate methods, I found a few modifications to this dataset to be useful:
 
-Many samples had very low abundance, so I thought it would be useful to pool samples by species. 
+Many samples had very low abundance, so I thought it would be useful to pool samples by species.
+
 ```{r}
 Plant_Pool <- Vacuum_Arthropods |>  
   separate(Sample_ID, into = c("Native", "Plant", "Rep"), sep = "_") |> 
@@ -51,7 +55,8 @@ rownames(Plant_Bug_Matrix) <- Plant_Pool$Sample
 
 ```
 
-2. Many species were only seen once, on one plant. Since these are not going to be useful for calculating similarity, This dataframe removes them. 
+2.  Many species were only seen once, on one plant. Since these are not going to be useful for calculating similarity, This dataframe removes them.
+
 ```{r}
 Common_Arth <- Vacuum_Arthropods |> 
   group_by(code) |> 
@@ -73,10 +78,10 @@ Common_Matrix <- as.matrix(Common_Arth[,-1])
 rownames(Common_Matrix) <- Common_Arth$Sample
 ```
 
-
 ### PCoA
 
-#### Step 1: Calculate the distance matrix for distance between samples. 
+#### Step 1: Calculate the distance matrix for distance between samples.
+
 ```{r}
 # way to do it so you can get a dendrogram plot
 Bug.eu <- dist(Bug_Matrix, method = "euclidean")
@@ -90,6 +95,7 @@ Bug.bc <- vegdist(Bug_Matrix, method = "bray")
 #### Step 2: Calculate the principal coordinates axes
 
 ##### Quick and Dirty
+
 ```{r}
 Bug.pco <- cmdscale(Bug.eu, k = 2)
 
@@ -99,6 +105,7 @@ Bug.pco.gg <- data.frame(Bug.pco) |> mutate(site = rownames(Bug.pco)) |>
 ```
 
 #### Step 3: Visualize your results
+
 ```{r}
 ggplot(Bug.pco.gg) + 
   aes(x = X1, y = X2, label = site) + 
@@ -139,21 +146,20 @@ ggplot(Bug.pco.gg) +
   labs(x = "PCoA1", y = "PCoA2")
 ```
 
-
 ```{r}
 Bug.pco$GOF
 ```
 
 #### Step 4: Tinker
-What do you think? Play around with using the different matrices I provided above, and with different distance algorithms. Do any come up with something more useful looking? 
 
-Options: 
-"manhattan", "euclidean", "canberra", "clark", "bray", "kulczynski", "jaccard", "gower", "altGower", "morisita", "horn", "mountford", "raup", "binomial", "chao", "cao", "mahalanobis", "chisq", "chord", "hellinger", "aitchison", or "robust.aitchison".
-Descriptions: https://rdrr.io/cran/vegan/man/vegdist.html
+What do you think? Play around with using the different matrices I provided above, and with different distance algorithms. Do any come up with something more useful looking?
+
+Options: "manhattan", "euclidean", "canberra", "clark", "bray", "kulczynski", "jaccard", "gower", "altGower", "morisita", "horn", "mountford", "raup", "binomial", "chao", "cao", "mahalanobis", "chisq", "chord", "hellinger", "aitchison", or "robust.aitchison". Descriptions: https://rdrr.io/cran/vegan/man/vegdist.html
 
 ### NMDS
 
 #### Step 1: Calculate the NMDS scores
+
 ```{r}
 
 # I recommend starting with this one. 
@@ -167,6 +173,7 @@ Common.nmds  <- metaMDS(Common_Matrix, distance = "man")
 ```
 
 #### Step 2: Preliminary visual for assessment, go back and tinker if looks weird
+
 ```{r}
 plot(Common.nmds, type = "t", display = "sites")
 
@@ -175,7 +182,7 @@ plot(Common.nmds, type = "p", display = c("site", "species"))
 
 #### Step 3: Extract Site and Species scores for better visuals
 
-Add information back in about treatments, etc. 
+Add information back in about treatments, etc.
 
 ```{r}
 scores(Plant.Bug.nmds)
@@ -191,13 +198,15 @@ Species_scores <-
 ```
 
 #### Step 4: Nice Visualization
+
 ```{r}
 NMDS_plot <- ggplot() + 
   geom_text(data = Site_scores, aes(x = NMDS1, y = NMDS2, label = Species, color = Native), cex = 3) + 
   geom_point(data = Species_scores, aes(x = NMDS1, y = NMDS2, label = Species))
 ```
 
-Try plotting with hulls to see how much the groups overlap. 
+Try plotting with hulls to see how much the groups overlap.
+
 ```{r}
 grp.Nat <- Site_scores[Site_scores$Native == "NATIVE", ][chull(Site_scores[Site_scores$Native == 
     "NATIVE", c("NMDS1", "NMDS2")]), ]  # hull values for grp A
@@ -215,15 +224,17 @@ NMDS_plot +
 ### PCA
 
 #### Step 1: Calculate the PCA
+
 ```{r}
 Common.pca <- prcomp(Common_Matrix, scale = TRUE)
 ```
 
 #### Step 2: Examine the results
 
-How much of the variance between samples is captured by each principal component axis? 
+How much of the variance between samples is captured by each principal component axis?
 
-Optimally, you should have ~80% of the variance explained by the axes you decide to keep. If the sum of your first two axes is over 70%, you're doing pretty good! If you have to keep more than three axes, you might be stretching a bit. 
+Optimally, you should have \~80% of the variance explained by the axes you decide to keep. If the sum of your first two axes is over 70%, you're doing pretty good! If you have to keep more than three axes, you might be stretching a bit.
+
 ```{r}
 fviz_eig(Common.pca)
 ```
@@ -246,7 +257,6 @@ fviz_pca_ind(
 # brighter colors in this one mean that sample or species is more correlated with that particular axis. 
 ```
 
-
 ```{r}
 fviz_pca_var(Common.pca)
 
@@ -258,24 +268,16 @@ fviz_pca_var(Common.pca,
 
 ```
 
-This plot can be useful for when you have fewer variables. 
+This plot can be useful for when you have fewer variables.
 
 ```{r}
 fviz_pca_biplot(Bug.pca)
 ```
 
-
-
-
-
-
-
-
-
-
 ## Quadrats
 
 ### Data Prep
+
 ```{r}
 load(file = "Quad_Combined_Clean.Rdata")
 
@@ -283,6 +285,7 @@ Quad_Combined_Clean
 ```
 
 All the data
+
 ```{r}
 Quad_Mat <- Quad_Combined_Clean |> 
   mutate(Sample_ID = paste(Date, Block, Treatment, Quad, Turf, sep = "_")) |> 
@@ -295,6 +298,7 @@ rownames(Quad_Matrix) <- Quad_Mat$Sample_ID
 ```
 
 Excluding Spring 2018
+
 ```{r}
 Quad_Mat_noSp <- Quad_Combined_Clean |> 
   filter(Date != "Spring 2018") |> 
@@ -307,8 +311,8 @@ rownames(Quad_Matrix_noSp) <- Quad_Mat_noSp$Sample_ID
 
 ```
 
-
 ### PCoA
+
 ```{r}
 Quad_Matrix 
 
@@ -331,18 +335,18 @@ ggplot(Quad.pco.gg) +
   labs(x = "PCoA1", y = "PCoA2")
 ```
 
-
 ```{r}
 ggplot(Quad.pco.gg) + 
   aes(x = Dim1, y = Dim2, shape = Native, color = Season) + 
   geom_point() + 
   labs(x = "PCoA1", y = "PCoA2")
 ```
+
 ### NMDS
+
 ```{r}
 
 ```
-
 
 ### PCA
 
@@ -410,6 +414,7 @@ rownames(Transect_Matrix) <- Transect_Mat$Sample_ID
 ```
 
 ### PCoA
+
 ```{r}
 Quad_Matrix 
 
@@ -420,12 +425,13 @@ scores(Tra.pco)
 ```
 
 ### NMDS
+
 ```{r}
 
 ```
 
-
 ### PCA
+
 ```{r}
 Transect.pca <- prcomp(Transect_Matrix, scale = TRUE)
 ```
@@ -433,6 +439,7 @@ Transect.pca <- prcomp(Transect_Matrix, scale = TRUE)
 ```{r}
 fviz_eig(Transect.pca)
 ```
+
 ```{r}
 fviz_pca_ind(Transect.pca)
 
@@ -449,8 +456,8 @@ fviz_pca_ind(
 # brighter colors in this one mean that sample or species is more correlated with that particular axis. 
 ```
 
-
 # BONEYARD
+
 ```{r}
 ggplot(Vacuum_Arthropods) + aes(x = Sample_ID, y = count, fill = code) + 
   geom_col() + 
@@ -462,4 +469,3 @@ ggplot(Vacuum_Arthropods) + aes(x = code, y = count, fill = Sample_ID) +
   theme(legend.position = "none")
   
 ```
-
