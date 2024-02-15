@@ -1,0 +1,107 @@
+---
+title: "PCA Demo"
+author: "Amy Henry, adapted from Piper Wallingford"
+date: "created 9/21/2019, adapted 2/17/2022"
+output: html_document
+---
+
+```{r}
+# install.packages("lattice", "devtools", "FactoMineR", "factoextra", "ggthemes")
+library(lattice)
+library(tidyverse)
+library(devtools)
+install_github("vqv/ggbiplot")
+library(ggbiplot)
+library(FactoMineR)
+library(factoextra)
+library(ggthemes)
+```
+
+# Research Question: How does long-term temperature affect where we find mussels in the intertidal? 
+
+The Data - We measured the highest point on the shore where mussels are found at 19 sites along the West Coast. We also collected yearly temperature data at each site, measured as means, maximums, and ranges at different time periods. 
+
+- Mean = Yearly Average
+- P90 = Yearly 90th Percentile
+- Max = Yearly Maximum
+- MonAvg = Monthly Average
+- MeanMonMax = Mean Monthly Maximum
+- DailyMean = Daily Average
+- MeanDMax = Average Daily Maximum
+- Range = Yearly Range
+- DailyRange = Average Daily Range
+- MeanRange = Average Monthly Range
+
+
+```{r}
+YearData <- read.csv("PCA/LongTermTemp.csv")
+glimpse(YearData)
+```
+
+We want to characterize the sites by their temperature, but we don't know which of our measurements is most important. 
+A PCA reduces the dimensionality and can tell us which variables drive the patterns
+
+# PCAs
+```{r}
+# select only the temperature data columns, exclude the mussel and site data
+PCA <- prcomp(YearData[,c(5:14)], scale = TRUE, center = TRUE)
+
+# Proportion of data explained by each axis
+summary(PCA)
+```
+
+# Plot
+```{r}
+fviz_pca_biplot(PCA, xlab = "PC1 (81.5%)", ylab = "PC2 (14.0%)", repel = TRUE, col.var = "black", col.ind = "gray", title = " ", label = "var") + theme_base()
+```
+
+# We want to use our PCA as a predictor variable for how temperature affects the upper limits of the mussel bed at each of our sites 
+
+Pull out the individual point scores 
+```{r}
+PCAFrame<-data.frame(YearData$Site, -PCA$x[,1:2])
+```
+
+We want to make sure the sites line up correctly and then merge our data into one dataset
+```{r}
+colnames(PCAFrame)[1]<-'Site'
+AllData <- merge(YearData, PCAFrame, by = "Site", all.x = TRUE)
+```
+
+
+# Now let's compare how temperature affects mussels using our individual metrics
+```{r}
+LM.Mean <- lm(AllData$MusselMax ~ AllData$Mean) #average
+summary(LM.Mean)
+LM.Max <- lm(MusselMax ~ Max, data = AllData) #max
+summary(LM.Max)
+LM.Range <- lm(MusselMax ~ Range, data = AllData) #range
+summary(LM.Range)
+```
+
+# Now try with daily max. Based on your results above, do you think daily max would be significant?
+```{r}
+LM.MeanDMax <- lm(MusselMax ~ MeanDMax, data = AllData) 
+summary(LM.MeanDMax)
+```
+
+We get variable answers depending on which metric we use, but we know that maximums, means, and ranges all contribute to our site's temperature though. What happens when we use our PCA?
+```{r}
+LM.PC1 <- lm(MusselMax ~ PC1, data = AllData) #range
+summary(LM.PC1)
+```
+
+Is PC2 significant?
+```{r}
+LM.PC2 <- lm(MusselMax ~ PC2, data = AllData)
+summary(LM.PC2)
+```
+
+# Now we can plot how mussels change with temperature (as described by our PCA)
+```{r}
+ggplot(AllData) + 
+  aes(x = PC1, y = MusselMax)+
+  geom_point()+
+  geom_smooth(method = "lm", se = TRUE)
+```
+

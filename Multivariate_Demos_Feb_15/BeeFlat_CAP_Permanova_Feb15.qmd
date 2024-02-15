@@ -1,0 +1,483 @@
+---
+title: "Multivariate Analysis Tutorial - Bee Flat Activity"
+subtitle: "adapted from IRC Data analysis for R2R summer institute 2021"
+author: "Amy Henry, adapted from Diane Campbell"
+date: "created Aug 3,2021, last modified 2/17/2022"
+output: html_document
+---
+
+# Multivariate Analysis Tutorial - Constrained Anlaysis with Bee Flat Community Data
+
+**Adapted from IRC Data analysis for R2R Summer Institute 2021, originally written by Diane Campbell Aug 3, 2021 and adapted by Amy Henry Feb 15, 2024**
+
+## Objectives:
+
+-   Understand how univariate analyses are extended to the analysis of multiple response variables.
+-   Use R to work with multivariate data such as environmental responses of multiple species.
+-   Use R to perform several methods of ordination
+    -   NMDS
+    -   Canonical analysis of principal coordinates (CAP)
+
+```{r}
+##  Load packages
+library(tidyverse)
+library(vegan)
+library(ggplot2)
+library(ggordiplots)
+```
+
+```{r}
+# Read in BeeFlat data
+d <-read.csv("Clean_Files_0816/CleanBeeFlat08062021_wide.csv")
+plot <-read.csv("Clean_Files_0816/BeeFlat_plotmetadata.csv")
+Beespeciesin <- read.csv("Clean_Files_0816/BeeFlat_SpeciesInfo.csv")
+```
+
+Join relational data sets and remove incidence of no vegetation
+
+```{r}
+d2 <- d
+Beejoin <- d2 %>%
+  select(-NoNatVeg) %>% 
+  left_join(plot, by = "Plot.key")
+```
+
+## About the data: 
+
+Bee Flat is a restoration site managed by the Irvine Ranch Conservancy. It recently underwent a 10 year restoration project that completed in 2020. This restoration project was partly experimental; some parts of the reserve were restored using "passive" restoration, in which crews would weed the areas routinely, while others were restored with "active" restoration, in which areas were cleared and replanted or seeded.
+
+Transects for community diversity were surveyed approximately annually at a number of locations within the separate treatments.
+
+Treatments:
+
+-   Habitat Type: Perennial Grassland vs. CSS
+
+-   Restoration method: Active, Passive, Control
+
+    -   In this experiment, control actually means reference, as they were nearby sites with "healthy" communities that were selected to compare against.
+
+After 10 years, IRC wanted to know whether the restoration was successful. Could we give them an answer using multivariate methods?
+
+**The data:**
+
+```{r}
+# this data frame contains community percent cover information
+Beejoin
+
+# the first column contains reference information smashed together to make a plot key column
+Beejoin$Plot.key |> head()
+
+# the last few columns are the reference columns
+Beejoin |> select(Site:Slope.Aspect) |> View()
+```
+
+## Assumptions
+
+Note that most of our multivariate analyses will assume:
+
+1.  a transect is an independent unit of replication,
+
+2.  treatments were randomly assigned, and
+
+3.  there is no autocorrelation between species composition at different times in the same transect (capscale does not accomodate random blocking factors)
+
+These assumptions are not all met!
+
+## Exercise 1: Use unconstrained analyses to evaluate multivariate patterns in control areas
+
+Unconstrained ordination methods are **multivariate techniques used to visualize and explore relationships among variables or observations in a dataset without imposing any specific constraints on the relationships**.
+
+For this analysis, we'll filter and ask whether the treatment areas differed before the restoration began. Absolute cover of each species at the beginning of restoration (e.g.Year-of_restoration is 0)
+
+```{r}
+ZeroYr <- Beejoin %>%
+    filter(
+      Year_of_restoration == 0 | 
+        (Year_of_restoration == 2011 & ProjectPhase == "CONTROL" ) | 
+        (Year_of_restoration == 2012 & ProjectPhase == "CONTROL")
+      )
+```
+
+### NMDS (non-metric dimensional scaling) is an unconstrained analysis
+
+Function `metaMDS()` requires numeric data only.
+
+```{r}
+# reduce our matrix to include only the community data, no reference columns
+numericonly <- ZeroYr |> select(-Plot.key, -(Site:Slope.Aspect))
+
+# Run the NMDS function
+mydata.mds <- metaMDS(numericonly, distance="bray", k=2, autotransform=FALSE, noshare = FALSE)
+# stress < 0.2 which means NMDS represents the variation well
+
+# save the output for the species and the sites/samples to objects for plotting
+spScores <- mydata.mds$species 
+sampleScores <- mydata.mds$points
+```
+
+#### Basic plots of NMDS
+
+```{r}
+plot(mydata.mds,type="t",display=c("species"))
+```
+
+```{r}
+plot(mydata.mds,type="t",display=c("sites"))
+```
+
+```{r}
+plot1 <- ordiplot(mydata.mds, choices=c(1,2)) #sites are circles, + are species
+```
+
+#### Making a better plot
+
+Adding species vectors to the plot of sites
+
+```{r}
+# mydata.mds was the output of our NMDS above
+# envfit is a function that creates vectors for how the different environmental factors (in this case, species) correlate with the NMDS result
+# gg_envfit is the ggplot equivalent
+
+#ZeroYr.sspfit <- envfit(mydata.mds, numericonly, permutations = 999)
+
+ZeroYr.sspfit <- gg_envfit(mydata.mds, numericonly)
+
+# viewing the result, we can see that it's actually done a statistical test to see which species are statistically significant predictors of this particular NMDS fit. 
+head(ZeroYr.sspfit)
+
+```
+
+```{r}
+# brackets make these lines run together - needs to for the plots to overlay
+{
+ordiplot(mydata.mds, display = "sites", main = "Unconstrained ordination at Year 0")
+plot(ZeroYr.sspfit, p.max = 0.01, col = "black", cex = 0.7)
+} # change the significance level of species shown with p.max
+
+ZeroYr.sspfit$plot
+```
+
+Conclusions:
+
+-   Relative amount of BROHOR (*Bromus hordeaceus,* non-native grass) versus ISOMEN (*Isocoma menziesii*, native shrub) is good at separating transects
+
+-   BROSPP (unknown *Bromus* species) versus BRODIA (*Bromus diandrus*, non-native grass) is also good at separating transects
+
+#### How to add a classification variable such as habitat for visualization
+
+```{r}
+# Base R version with ordiplot
+{
+ordiplot(mydata.mds, display = "sites", main = "Unconstrained ordination at Year 0")
+orditorp(mydata.mds, display = "sites", labels = ZeroYr$habitat, pch = c(16, 8) [as.factor(ZeroYr$habitat)], col = c("red", "blue") [as.factor(ZeroYr$habitat)])
+}
+
+# ggplot version
+
+Zrfit_points <- bind_cols(ZeroYr,ZeroYr.sspfit$df_ord)
+Zrfit_arrows <- ZeroYr.sspfit$df_arrows |> filter(p.val < 0.002)
+
+library(ordr)
+ggplot() + 
+  geom_point(data = Zrfit_points,  
+             aes(x = x, y = y, color = habitat)) + 
+  geom_vector(data = Zrfit_arrows, aes(x = x, y = y)) + 
+  geom_text(data = Zrfit_arrows, 
+            aes(x = x, y = y, label = var), 
+            vjust = 1)+ 
+  labs(y = "NMDS2", x = "NMDS1")
+
+  ZeroYr.sspfit$df_arrows
+```
+
+```{r}
+{
+  ordiplot(mydata.mds, display = "sites", main = "Unconstrained ordination at Year 0")
+ordihull(mydata.mds, groups = ZeroYr$habitat, draw = "polygon", lty = 1, col = "grey90")
+}
+
+# Ellipses that include all the points in a group
+gg_ordiplot(
+    mydata.mds,
+    groups = ZeroYr$habitat,
+    scaling = 1,
+    choices = c(1, 2),
+    kind = "ehull",
+    conf = 0.05,
+    show.groups = "all",
+    ellipse = TRUE,
+    label = TRUE,
+    pt.size = 1,
+    plot = TRUE
+)
+
+# Ellipses that include 1 standard deviation of the variation in the points in group in either direction
+gg_ordiplot(
+    mydata.mds,
+    groups = ZeroYr$habitat,
+    scaling = 1,
+    choices = c(1, 2),
+    kind = "sd",
+    #conf = 0.95,
+    show.groups = "all",
+    ellipse = TRUE,
+    label = TRUE,
+    pt.size = 1,
+    plot = TRUE
+)
+```
+
+```{r}
+gg_ordiplot(
+    mydata.mds,
+    groups = ZeroYr$habitat,
+    scaling = 1,
+    choices = c(1, 2),
+    show.groups = "all",
+    label = TRUE,
+    hull = TRUE,
+    ellipse = FALSE,
+    spiders = FALSE,
+    pt.size = 1,
+    plot = TRUE
+)
+```
+
+### Statistical tests for differences in groups - PERMANOVA
+
+**Note that habitats are not well separated on axes that represent all variation in species composition - visually hard to tell!**
+
+PERMANOVA is used to compare groups of objects and test the null hypothesis that:
+
+1.  the centroids (the mean of both axes) are equivalent for all groups.
+
+2.  dispersion (spread of the points within a group) of the groups as defined by measure space are equivalent for all groups.
+
+A rejection of the null hypothesis means that either the centroid and/or the spread of the objects is different between the groups.
+
+How to do it with R on our dataset:
+
+```{r}
+# adonis2 is from the vegan package
+ZeroYr.permanova <- 
+  adonis2(formula = numericonly ~ habitat, 
+         data = ZeroYr, 
+         permutations = 999, 
+         method ="bray")
+
+ZeroYr.permanova
+```
+
+Looks like even though they're not well-differentiated visually, they are statistically separate!
+
+## Exercise 2: Compare the previous unconstrained ordination with constrained ordination
+
+### Canonical analysis of principal coordinates (CAP) 
+
+CAP is a constrained analysis, which means that it uses information about the environmental variables (in this case, our knowledge about the habitats) as a prior. Some additional definitions:
+
+-   Borcard et al. - Simple (unconstrained) ordination analyses a single data matrix. Canonical (constrained) ordination associates two or more data sets.
+
+-   Ramette 2007 - “In constrained (canonical) ordination analyses, only the variation in the species table that can be explained by the environmental variables is displayed and analyzed, and not all the variation in the species table.” (This refers to asymmetrical methods only?)
+
+It also allows for distance measures other than Euclidean (like PCA and PCoA) and does not make distributional assumptions.
+
+#### CAP analysis
+
+First, we'll perform CAP on the same ZeroYr data set to show how it differs from NMDS in finding differences among habitats.
+
+```{r}
+Year0.cap <- capscale(numericonly ~ habitat, ZeroYr, dist="bray")
+Year0.cap
+```
+
+```{r}
+scores(Year0.cap)
+```
+
+#### Test for differences using PERMANOVA
+
+We can run anova directly on our capscale output object.
+
+```{r}
+anova(Year0.cap) 
+```
+
+-   Permutation ANOVA also shows significant difference at start among habitats
+
+#### Basic plots
+
+```{r}
+plot(Year0.cap, display=c("sp", "sites","cn"),type="text")
+```
+
+```{r}
+plot(Year0.cap, display=c("sp", "cn"),type="text")# xlim=c(-2,2), ylim=c(-1,2))
+```
+
+#### Nicer plots of CAP
+
+```{r}
+{
+ordiplot(Year0.cap, type = "n", main = "CAP of Year 0")
+orditorp(Year0.cap, display = "sites", labels = ZeroYr$habitat, pch = c(16, 8) [(ZeroYr$habitat)], col = c("red", "blue") [as.factor(ZeroYr$habitat)])
+ordihull(Year0.cap, groups = ZeroYr$habitat, draw = "polygon", lty = 1, col = "grey90")
+orditorp(Year0.cap, display = "species")
+}
+
+gg_ordiplot(
+    Year0.cap,
+    groups = ZeroYr$habitat,
+    scaling = 1,
+    choices = c(1, 2),
+    show.groups = "all",
+    label = TRUE,
+    hull = TRUE,
+    ellipse = FALSE,
+    spiders = FALSE,
+    pt.size = 1,
+    plot = TRUE
+)
+
+
+```
+
+Conclusion: Note that CAP does a better job of separating the two habitats than does NMDS!
+
+This happens because the CAP ordination is specifically constrained to look for habitat separation.
+
+## Exercise 3: Use CAP to evaluate how control, passive, and active restoration sites differ
+
+How did absolute cover of each species change from the **beginning vs end of restoration** and differ between **active vs passive restoration vs control?**
+
+Format data in preparation - selecting only observations from the beginning year and the last years of restoration
+
+```{r}
+Restorations <- Beejoin %>%
+  
+  filter(Year_of_restoration == 0 | (Year_of_restoration > 4)) %>%
+  filter(!(Year_of_restoration > 2012 & Year_of_restoration < 2015)) %>%
+  mutate(rphase = if_else(Year_of_restoration == 0, "begin",
+                  if_else(Year_of_restoration == 2011, "begin",
+                  if_else(Year_of_restoration == 2012, "begin", "end"))))
+  
+
+numericonly2 <- select(Restorations, -Plot.key, -(Site:rphase))
+numericonly2
+```
+
+#### Canonical analysis of principal coordinates (CAP) is a constrained analysis that allows for other distance measures
+
+```{r}
+Restorations.cap <-
+  capscale(numericonly2 ~ restoration.type * rphase, Restorations, dist="bray")
+Restorations.cap
+```
+
+```{r}
+plot(Restorations.cap, display=c("sp", "sites","cn"),type="text")
+```
+
+```{r}
+plot(Restorations.cap, display=c("sp", "cn"),type="text", xlim=c(-2,2), ylim=c(-1,2))
+```
+
+#### PERMANOVA to test for differences between treatments
+
+```{r}
+scores(Restorations.cap)
+anova(Restorations.cap)
+```
+
+**Conclusion:** Groups differ significantly in species composition according to permutation test! This only tells us that there is a difference - to test individual factors we can use `anova.cca`.
+
+Note the tests are sequential, in this case fitting the interaction last.
+
+```{r}
+anova.cca(Restorations.cap, by="term")
+```
+
+**Conclusion:** Community differed from start to finish AND by restoration type!
+
+#### Making a nicer plot by getting CAP1 and CAP2 into the dataframe and using ggplot
+
+```{r}
+x <- as.data.frame(scores(Restorations.cap, display = "sites"))
+sp <- as.data.frame(scores(Restorations.cap, display = "sp"))
+sp$SpeciesCode <- row.names(sp)
+
+spjoin <- sp %>%
+  left_join(Beespeciesin, by = "SpeciesCode") 
+
+Restorations$CAP1 <- x$CAP1
+Restorations$CAP2 <- x$CAP2
+```
+
+```{r}
+ggplot(Restorations, aes(x= CAP1, y= CAP2, color = restoration.type)) + 
+  stat_ellipse(aes(fill = restoration.type, linetype = rphase), geom = "polygon", alpha = 0.1) +
+  geom_point() +
+  theme_classic() + 
+  geom_hline(yintercept = 0, linetype="dotted") + 
+  geom_vline(xintercept = 0, linetype="dotted") +
+  labs(color = "restoration.type") +
+  ggtitle("Capscale Analysis") +
+  geom_label(data = spjoin, aes(x= CAP1, y= CAP2, label = SpeciesCode), color = as.factor(spjoin$Native.Non.Native), size = 2)
+theme(plot.title = element_text(hjust = 0.5))
+```
+
+Conclusions: - Restored sites at end have more AVEFAT, STIPUL, DEIFAS and less AVESPP, BRODIA, BRANIG than at the beginning - Significant interaction indicates that restored sites differed from controls, more so at the end
+
+## Exercise 4: CAP for CSS habitat only
+
+#### Select CSS data
+
+```{r}
+RestorationsCSS <- Restorations %>%
+  filter(habitat == "CSS")
+numericonly3 <- select(RestorationsCSS, -Plot.key, -(Site:rphase))
+```
+
+#### CAP
+
+```{r}
+RestorationsCSS.cap <- capscale(numericonly3 ~ restoration.type*rphase, RestorationsCSS, dist = "bray")
+RestorationsCSS.cap
+```
+
+#### PERMANOVA
+
+```{r}
+scores(RestorationsCSS.cap)
+anova(RestorationsCSS.cap) # Differences among groups are significant (P < 0.001)
+anova.cca(RestorationsCSS.cap, by = "term")
+```
+
+#### Making the plot
+
+```{r}
+x <- as.data.frame(scores(RestorationsCSS.cap, display = "sites"))
+spCSS <- as.data.frame(scores(RestorationsCSS.cap, display = "sp"))
+spCSS$SpeciesCode <- row.names(spCSS)
+
+spjoinCSS <- spCSS %>%
+  left_join(Beespeciesin, by = "SpeciesCode") 
+
+RestorationsCSS$CAP1 <- x$CAP1
+RestorationsCSS$CAP2 <- x$CAP2
+```
+
+```{r}
+ggplot(RestorationsCSS, aes(x= CAP1, y= CAP2, color = restoration.type)) + 
+  stat_ellipse(aes(fill = restoration.type, linetype = rphase), geom = "polygon", alpha = 0.1) +
+  geom_point() +
+  theme_classic() + 
+  geom_hline(yintercept = 0, linetype="dotted") + 
+  geom_vline(xintercept = 0, linetype="dotted") +
+  labs(color = "restoration.type") +
+  ggtitle("Capscale Analysis for CSS") +
+  geom_label(data = spjoinCSS, aes(x= CAP1, y= CAP2, label = SpeciesCode), color = as.factor(spjoinCSS$Native.Non.Native), size = 2)
+theme(plot.title = element_text(hjust = 0.5))
+```
+
+Conclusions: - For CSS restoration, Active restoration gives more of the natives DEIFAS, ARTCAL and SALMEL than does Passive restoration

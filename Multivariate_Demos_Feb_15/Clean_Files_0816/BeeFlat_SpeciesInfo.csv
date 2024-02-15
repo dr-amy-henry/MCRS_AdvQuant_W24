@@ -1,0 +1,167 @@
+SpeciesCode,ScientificName,Native.Non.Native,Functional.Group,FunGroup,LifeForm
+ACHMOL,Achyrachaena mollis,Native,Annual Forb - Other,Forb,Annual
+ACMGLA,Acmispon glaber,Native,Perennial Forb - Other,Forb,Perennial
+ACMSTR,Acmispon strigosus,Native,Annual Forb - Other,Forb,Annual
+ACMWRA,Acmispon wrangelianus,Native,Annual Forb - Other,Forb,Annual
+ALYCON,Agrostis pallens,Native,Perennial Grass - Other,Grass,Perennial
+AMAALB,Amaranthus albus,Non-native,Forb,Forb,Annual
+AMBACA,Ambrosia acanthicarpa,Native,Annual Forb - Late Flowering,Forb,Annual
+AMBPSI,Ambrosia psilostachya,Native,Perennial Forb - Late Flowering,Forb,Perennial
+AMSMEN,Amsinckia menziesii var intermedia,Native,Annual Forb - Other,Forb,Annual
+ANAARV,Anagallis arvensis,Non-native,Annual Forb,Forb,Annual
+ANTCAU,Anthriscus caucalis,Non-native,Forb,Forb,Annual
+ARTCAL,Artemisia californica,Native,Shrub - Other,Shrub,Perennial
+ARTUAL,Artemisia dracunculus,Native,Perennial Forb - Late Flowering,Forb,Perennial
+ASCFAS,Asclepias fascicularis,Native,Perennial Forb - Late Flowering,Forb,Perennial
+AVEBAR,Avena barbata,Non-native,Grass,Grass,Annual
+AVEFAT,Avena fatua,Non-native,Grass,Grass,Annual
+AVESPP,Avena spp.,Non-native,Grass,Grass,Annual
+BACPIL,Baccharis pilularis,Native,Shrub - Late Flowering,Shrub,Perennial
+BLOCRO,Bloomeria crocea,Native,Perennial Forb - Other,Forb,Perennial
+BRADIS,Brachypodium distachyon,Non-native,Grass,Grass,Annual
+BRANIG,Brassica nigra,Non-native,Forb,Forb,Annual
+BROCAR,Bromus carinatus,Native,Perennial Grass - Other,Grass,Perennial
+BROCAT,Bromus catharticus,Non-native,Grass,Grass,Annual
+BRODIA,Bromus diandrus,Non-native,Grass,Grass,Annual
+BROHOR,Bromus hordeaceus,Non-native,Grass,Grass,Annual
+BROMAD,Bromus madritensis,Non-native,Grass,Grass,Annual
+BROSPP,Bromus species,Non-native,Grass,Grass,Annual
+CALCAT,Calochortus catalinae,Native,Perennial Forb - Other,Forb,Perennial
+CALCIL,Calandrina ciliata,Native,Annual Forb - Other,Forb,Annual
+CALMAC,Calystegia macrostegia,Native,Perennial Forb - Other,Forb,Perennial
+CALSPL,Calochortus splendens,Native,Perennial Forb - Other,Forb,Perennial
+CAMSPP,Camissoniopsis species,Native,Annual Forb - Other,Forb,Annual
+CAPBUR,Capsella bursa-pastoris,Non-native,Forb,Forb,Annual
+CASEXE,Castilleja exserta,Native,Annual Forb - Other,Forb,Annual
+CENMEL,Centaurea melitensis,Non-native,Forb,Forb,Annual
+CERGLO,Cercocarpus betuloides,Native,Tree,Tree,Perennial
+CHAGLA,Chaenactis glabriuscula,Native,Annual Forb - Other,Forb,Annual
+CHEALB,Chenopodium album,Non-native,Forb,Forb,Annual
+CHECAL,Chenopodium californicum,Native,Perennial Forb - Late Flowering,Forb,Perennial
+CIROCC,Cirsium occidentale,Native,Perennial Forb - Late Flowering,Forb,Perennial
+CLAPUR,Clarkia purpurea,Native,Annual Forb - Other,Forb,Annual
+CONARV,Convolvulus arvensis,Non-native,Forb,Forb,Annual
+CONCAN,Conyza canadensis,Non-native,Forb,Forb,Annual
+CONYZA,Conyza species,Non-native,Forb,Forb,Annual
+CORFIL,Corethrogyne filaginifolia,Native,Perennial Forb - Late Flowering,Forb,Perennial
+CROSET,Croton setigerus,Native,Annual Forb - Late Flowering,Forb,Annual
+CRYINT,Cryptantha intermedia,Native,Annual Forb - Other,Forb,Annual
+CYNCAR,Cynara cardunculus,Non-native,Forb,Forb,Annual
+DEIFAS,Deinandra fasciculata,Native,Annual Forb - Late Flowering,Forb,Annual
+DEIPAS,Deinandra paniculata,Native,Annual Forb - Late Flowering,Forb,Annual
+DICCAP,Dichelostemma capitatum,Native,Perennial Forb - Other,Forb,Perennial
+ELYCON,Elymus condensatus,Native,Perennial Grass - Other,Grass,Perennial
+ELYGLA,Elymus glaucus,Native,Perennial Grass - Other,Grass,Perennial
+EMMPEN,Emmenanthe penduliflora,Native,Annual Forb - Other,Forb,Annual
+ENCCAL,Encelia californica,Native,Shrub - Other,Shrub,Perennial
+EPICAN,Epilobium canum,Native,Perennial Forb - Late Flowering,Forb,Perennial
+EPISPP,Epilobium ciliatum,Native,Perennial Forb - Late Flowering,Forb,Perennial
+ERICAN,Erigeron canadensis,Native,Annual Forb - Other,Forb,Annual
+ERIELO,Eriogonum elongatum,Native,Perennial Forb - Late Flowering,Forb,Perennial
+ERIFAS,Eriogonum fasciculatum,Native,Shrub - Late Flowering,Shrub,Perennial
+ERIFOL,Erigeron foliosus,Native,Perennial Forb - Late Flowering,Forb,Perennial
+ERIPAL,Ericameria palmeri,Native,Shrub - Late Flowering,Shrub,Perennial
+ERISPP,Eriastrum sapphirinum,Native,Annual Forb - Late Flowering,Forb,Annual
+EROBOT,Erodium botrys,Non-native,Forb,Forb,Annual
+EROBRA,Erodium brachycarpum,Non-native,Forb,Forb,Annual
+EROCIC,Erodium cicutarium,Non-native,Forb,Forb,Annual
+EROMOS,Erodium moschatum,Non-native,Forb,Forb,Annual
+EROSPP,Erodium species,Non-native,Forb,Forb,Annual
+ESCCAL,Eschscholzia californica,Native,Annual Forb - Other,Forb,Annual
+EUCCHR,Eucrypta chrysanthemifolia,Native,Annual Forb - Other,Forb,Annual
+EUPPEP,Euphorbia peplus,Non-native,Forb,Forb,Annual
+FESMYU,Festuca myuros,Non-native,Grass,Grass,Annual
+FESPER,Festuca perennis,Non-native,Grass,Grass,Annual
+GALANG,Galium angustifolium,Native,Perennial Forb - Other,Forb,Perennial
+GALAPA,Galium aparine,Native,Annual Forb - Other,Forb,Annual
+GALPAR,Galium parisiense,Non-native,Forb,Forb,Annual
+GALSPP,Galium species,Native,Perennial Forb - Other,Forb,Perennial
+GERROT,Geranium rotundifolium,Non-native,Forb,Forb,Annual
+GRICAM,Grindelia camporum,Native,Perennial Forb - Late Flowering,Forb,Perennial
+HAZSQU,Hazardia squarrosa,Native,Shrub - Late Flowering,Shrub,Perennial
+HELECH,Helminthotheca echioides,Non-native,Forb,Forb,Annual
+HESWHI,Hesperoyucca whipplei,Native,Shrub - Other,Shrub,Perennial
+HETARB,Heteromeles arbutifolia,Native,Large Shrub,Shrub,Perennial
+HIRINC,Hirschfeldia incana,Non-native,Forb,Forb,Perennial
+HORMUR,Hordeum murinum,Non-native,Grass,Grass,Annual
+HYPGLA,Hypochaeris glabra,Non-native,Forb,Forb,Annual
+ISOMEN,Isocoma menziesii,Native,Shrub - Late Flowering,Shrub,Perennial
+KECCOR,Keckiella cordifolia,Native,Shrub - Late Flowering,Shrub,Perennial
+LACSER,Lactuca serriola,Non-native,Forb,Forb,Annual
+LAMAUR,Lamarkia aurea,Non-native,Grass,Grass,Annual
+LASSSP,Lasthenia species,Native,Annual Forb - Other,Forb,Annual
+LEPNIT,Lepidium nitidum,Native,Annual Forb - Other,Forb,Annual
+LOGGAL,Logfia gallica,Non-native,Forb,Forb,Annual
+LUPALB,Lupinus albifrons,Native,Shrub - Other,Shrub,Perennial
+LUPBIC,Lupinus bicolor,Native,Annual Forb - Other,Forb,Annual
+LUPLON,Lupinus longifolius,Native,Shrub - Other,Shrub,Perennial
+LUPMIC,Lupinus microcarpus,Native,Annual Forb - Other,Forb,Annual
+LUPSPA,Lupinus sparsiflorus,Native,Annual Forb - Other,Forb,Annual
+LUPSUC,Lupinus succulentus,Native,Annual Forb - Other,Forb,Annual
+LYSARV,Lysimachia arvensis,Non-native,Forb,Forb,Annual
+MALFAS,Malacothamnus fasciculatus,Native,Large Shrub,Shrub,Perennial
+MALLAU,Malosma laurina,Native,Large Shrub,Shrub,Perennial
+MALPAR,Malva parviflora,Non-native,Forb,Forb,Annual
+MALSAX,Malacothrix saxatilis,Native,Perennial Forb - Late Flowering,Forb,Perennial
+MARMAC,Marah macrocarpa,Native,Perennial Forb - Other,Forb,Perennial
+MARVUL,Marrubium vulgare,Non-native,Forb,Forb,Perennial
+MEDPOL,Medicago polymorpha,Non-native,Forb,Forb,Annual
+MELALB,Melilotus albus,Non-native,Forb,Forb,Annual
+MELIMP,Melica imperfecta,Native,Perennial Grass - Other,Grass,Perennial
+MELIND,Melilotus indicus,Non-native,Forb,Forb,Annual
+MIMAUR,Mimulus aurantiacus,Native,Shrub - Other,Shrub,Perennial
+MIRLAE,Mirabilis laevis,Native,Perennial Forb - Other,Forb,Perennial
+NATSHRUB,Native Shrub,Native,.,Shrub,.
+NoNatVeg,No Native Vegetation,NoVeg,.,.,.
+ONCPIL,Oncosiphon piluliferum,Non-native,Forb,Forb,Annual
+OPULIT,Opuntia littoralis,Native,Shrub - Late Flowering,Shrub,Perennial
+PHACAN,Persicaria lapathifolia,Native,Annual Forb - Other,Forb,Annual
+PHACIC,Phacelia cicutaria,Native,Annual Forb - Other,Forb,Annual
+PHAPAR,Phacelia parryi,Native,Annual Forb - Other,Forb,Annual
+PHARAM,Phacelia ramosissima,Native,Perennial Forb - Late Flowering,Forb,Perennial
+PLAERE,Plantago erecta,Native,Annual Forb - Other,Forb,Annual
+PSEBIO,Pseudognaphalium biolettii,Native,Perennial Forb - Other,Forb,Perennial
+PSECAL,Pseudognaphalium californicum,Native,Perennial Forb - Other,Forb,Perennial
+PSELUT,Pseudognaphalium luteoalbum,Non-native,Forb,Forb,Annual
+QUEAGR,Quercus agrifolia,Native,Tree,Tree,Perennial
+RAFCAL,Rafinesquia californica,Native,Annual Forb - Late Flowering,Forb,Annual
+RANCAL,Ranunculus californicus,Native,Perennial Forb - Other,Forb,Perennial
+RHAILI,Rhamnus ilicifolia,Native,Shrub - Other,Shrub,Perennial
+RHUINT,Rhus integrifolia,Native,Large Shrub,Shrub,Perennial
+RUMCRI,Rumex crispus,Non-native,Forb,Forb,Perennial
+SALAPI,Salvia apiana,Native,Shrub - Late Flowering,Shrub,Perennial
+SALCOL,Salvia columbariae,Native,Annual Forb - Other,Forb,Annual
+SALMEL,Salvia mellifera,Native,Shrub - Other,Shrub,Perennial
+SALTRA,Salsola tragus,Non-native,Forb,Forb,Annual
+SAMNIG,Sambucus nigra ssp. caerulea,Native,Tree,Tree,Perennial
+SANARG,Sanicula arguta,Native,Perennial Forb - Other,Forb,Perennial
+SANBIP,Sanicula bipinnatifida,Native,Perennial Forb - Other,Forb,Perennial
+SANCRA,Sanicula crassicaulis,Native,Perennial Forb - Other,Forb,Perennial
+SANSPP,Sanicula species,Native,Perennial Forb - Other,Forb,Perennial
+SCHBAR,Schismus barbatus,Non-native,Grass,Grass,Annual
+SCRCAL,Scrophularia californica,Native,Perennial Forb - Other,Forb,Perennial
+SENVUL,Senecio vulgaris,Non-native,Forb,Forb,Annual
+SILGAL,Silene gallica,Non-native,Forb,Forb,Annual
+SILMAR,Silybum marianum,Non-native,Forb,Forb,Annual
+SISBEL,Sisyrinchium bellum,Native,Perennial Forb - Other,Forb,Perennial
+SISIRI,Sisymbrium irio,Non-native,Forb,Forb,Annual
+SOLDOU,Solanum douglasii,Native,Perennial Forb - Late Flowering,Forb,Perennial
+SOLUMB,Solanum umbelliferum,Native,Shrub - Other,Shrub,Perennial
+SOLVEL,Solidago velutina<U+00A0><U+00A0>ssp. californica,Native,Perennial Forb - Late Flowering,Forb,Perennial
+SOLXAN,Solanum xanti,Native,Shrub - Other,Shrub,Perennial
+SONASP,Sonchus asper,Non-native,Forb,Forb,Annual
+SONOLE,Sonchus oleraceus,Non-native,Forb,Forb,Annual
+SONSPP,Sonchus species,Non-native,Forb,Forb,Annual
+STAAJU,Stachys ajugoides,Native,Perennial Forb - Other,Forb,Perennial
+STARIG,Stachys rigida var. rigida,Native,Perennial Forb - Late Flowering,Forb,Perennial
+STEHET,Stebbinsoseris heterocarpa,Native,Annual Forb - Other,Forb,Annual
+STEVIR,Stephanomeria virgata,Native,Annual Forb - Late Flowering,Forb,Annual
+STILEP,Stipa lepida,Native,Perennial Grass - Other,Grass,Perennial
+STIPUL,Stipa pulchra,Native,Perennial Grass - Other,Grass,Perennial
+TORNOD,Torilis nodosa,Non-native,Forb,Forb,Annual
+TOXDIV,Toxicodendron diversilobum,Native,Shrub - Other,Shrub,Perennial
+TRILANC,Trichostema lanceolatum,Native,Annual Forb - Late Flowering,Forb,Annual
+TRISPP,Trifolium species,Native,Annual Forb - Other,Forb,Annual
+UROLIN,Uropappus lindleyi,Native,Annual Forb - Other,Forb,Annual
+VERVIR,Verbascum virgatum,Non-native,Forb,Forb,Perennial
+VICVIL,Vicia villosa,Non-native,Forb,Forb,Annual
